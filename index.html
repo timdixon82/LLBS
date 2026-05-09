@@ -92,15 +92,21 @@
       gap: 0.75rem;
     }
 
-    .site-header__logo {
-      color: var(--white);
+    .site-header__logo-link {
+      display: inline-flex;
+      align-items: center;
+      background: var(--white);
+      padding: 0.3rem 0.75rem;
+      border-radius: 3px;
       text-decoration: none;
-      font-size: 1.1rem;
-      font-weight: bold;
-      letter-spacing: 0.3px;
+      flex-shrink: 0;
     }
 
-    .site-header__logo span { color: var(--mid-grey); }
+    .site-header__logo-img {
+      height: 40px;
+      width: auto;
+      display: block;
+    }
 
     .nav-toggle {
       display: none;
@@ -715,8 +721,8 @@
 
   <header class="site-header" role="banner">
     <div class="site-header__inner">
-      <a class="site-header__logo" href="#main-content">
-        LLBS <span>&mdash; Lincoln &amp; Lindsey Blind Society</span>
+      <a class="site-header__logo-link" href="https://www.llbs.co.uk" aria-label="Lincoln and Lindsey Blind Society — visit website">
+        <img class="site-header__logo-img" src="https://www.llbs.co.uk/wp-content/uploads/2023/05/LLBS-logo-with-text.png" alt="Lincoln and Lindsey Blind Society">
       </a>
       <button class="nav-toggle" aria-controls="main-nav" aria-expanded="false" type="button">Menu</button>
       <nav class="site-nav" id="main-nav" aria-label="Page sections">
@@ -1316,6 +1322,8 @@
         <p style="color:var(--mid-grey);margin-bottom:1.25rem;font-size:0.9375rem;">This strategy is not something we deliver on our own. It succeeds because people choose to stand with us.</p>
 
         <div class="cta-contact">
+          <a href="https://llbs.co.uk/donate/">Donate to LLBS</a>
+          <a href="https://www.llbs.co.uk">Visit llbs.co.uk</a>
           <a href="tel:01507605604">Call 01507 605604</a>
           <a href="mailto:info@llbs.co.uk">Email info@llbs.co.uk</a>
         </div>
