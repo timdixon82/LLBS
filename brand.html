@@ -171,6 +171,16 @@
       background: #fff;
     }
 
+    .control-group input[type="color"] {
+      width: 100%;
+      height: 40px;
+      padding: 2px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+    }
+
     .control-group textarea { resize: vertical; min-height: 56px; }
 
     .control-group input:focus,
@@ -179,6 +189,47 @@
       outline: none;
       border-color: #1a56db;
       box-shadow: 0 0 0 3px rgba(26,86,219,0.15);
+    }
+
+    .contrast-badge {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1.5px solid #cbd5e1;
+      background: #f8fafc;
+    }
+
+    .contrast-badge__row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .contrast-pill {
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+    }
+
+    .contrast-pill.pass { background: #d1fae5; color: #065f46; }
+    .contrast-pill.fail { background: #fee2e2; color: #991b1b; }
+    .contrast-pill.na   { background: #e2e8f0; color: #475569; }
+
+    .contrast-ratio {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #1a2942;
+    }
+
+    .contrast-detail {
+      font-size: 0.78rem;
+      color: #475569;
+      line-height: 1.35;
     }
 
     .control-row {
@@ -340,6 +391,7 @@
       <div class="control-group">
         <label for="textInput">Overlay Text</label>
         <textarea id="textInput" placeholder="Add a headline or caption&hellip;" maxlength="200"></textarea>
+        <p class="help-text">Drag the text on the canvas to position it anywhere inside the frame.</p>
       </div>
 
       <div class="control-group">
@@ -347,23 +399,44 @@
         <input type="range" id="textSize" min="16" max="120" value="48" step="1" />
       </div>
 
+      <div class="control-group">
+        <label for="textFont">Font</label>
+        <select id="textFont">
+          <option value="'DM Sans', Arial, sans-serif">DM Sans (LLBS brand)</option>
+          <option value="'Segoe UI', Arial, sans-serif" selected>Segoe UI / system</option>
+          <option value="Arial, Helvetica, sans-serif">Arial / Helvetica</option>
+          <option value="Georgia, serif">Georgia (serif)</option>
+          <option value="'Times New Roman', Times, serif">Times New Roman</option>
+          <option value="'Courier New', Courier, monospace">Courier (mono)</option>
+          <option value="Impact, sans-serif">Impact (display)</option>
+          <option value="Verdana, sans-serif">Verdana</option>
+        </select>
+      </div>
+
       <div class="control-row">
         <div class="control-group">
-          <label for="textPosition">Position</label>
-          <select id="textPosition">
-            <option value="top">Top</option>
-            <option value="middle">Middle</option>
-            <option value="bottom" selected>Bottom</option>
-          </select>
+          <label for="fontColor">Font colour</label>
+          <input type="color" id="fontColor" value="#ffffff" />
         </div>
         <div class="control-group">
-          <label for="textColor">Colour</label>
-          <select id="textColor">
-            <option value="white" selected>White on dark</option>
-            <option value="black">Black on light</option>
-            <option value="brand">LLBS blue</option>
-          </select>
+          <label for="bgColor">Background</label>
+          <input type="color" id="bgColor" value="#000000" />
         </div>
+      </div>
+
+      <div class="control-group">
+        <label for="bgAlpha">Background opacity <span class="value" id="bgAlphaValue">40%</span></label>
+        <input type="range" id="bgAlpha" min="0" max="100" value="40" step="1" />
+        <p class="help-text">Slide to 0% for a fully transparent text background.</p>
+      </div>
+
+      <div class="contrast-badge" aria-live="polite">
+        <div class="contrast-badge__row">
+          <span class="contrast-pill na" id="contrastAA">AA &mdash;</span>
+          <span class="contrast-pill na" id="contrastAAA">AAA &mdash;</span>
+          <span class="contrast-ratio" id="contrastRatio">&ndash;:1</span>
+        </div>
+        <p class="contrast-detail" id="contrastDetail">Pick a font and background colour to see the WCAG contrast rating.</p>
       </div>
     </div>
   </div>
@@ -451,8 +524,15 @@
   const textInput    = document.getElementById('textInput');
   const textSize     = document.getElementById('textSize');
   const textSizeValue= document.getElementById('textSizeValue');
-  const textPosition = document.getElementById('textPosition');
-  const textColor    = document.getElementById('textColor');
+  const textFont     = document.getElementById('textFont');
+  const fontColor    = document.getElementById('fontColor');
+  const bgColor      = document.getElementById('bgColor');
+  const bgAlpha      = document.getElementById('bgAlpha');
+  const bgAlphaValue = document.getElementById('bgAlphaValue');
+  const contrastAA     = document.getElementById('contrastAA');
+  const contrastAAA    = document.getElementById('contrastAAA');
+  const contrastRatioEl= document.getElementById('contrastRatio');
+  const contrastDetail = document.getElementById('contrastDetail');
 
   // ─────────────────────────────────────────────
   // State
@@ -472,6 +552,14 @@
   };
 
   let currentFormat = FORMATS.square;
+
+  // Text state — centre of text block in output-canvas pixels.
+  let textState = {
+    x: 0,
+    y: 0,
+    customPlaced: false,
+    bounds: null  // last drawn bbox for hit-testing {x,y,w,h}
+  };
 
   // ─────────────────────────────────────────────
   // Logo loading
@@ -533,6 +621,8 @@
       transform.baseScale = computeFitBaseScale();
       recentrePhoto();
     }
+    // Re-anchor text to the new frame's default position
+    textState.customPlaced = false;
     drawComposite();
   }
 
@@ -596,74 +686,167 @@
 
   function drawText(area) {
     const text = textInput.value.trim();
-    if (!text) return;
+    if (!text) { textState.bounds = null; return; }
 
     const pad = Math.round(currentFormat.w * TEXT_PADDING_RATIO);
     const maxW = area.w - pad * 2;
     const fontSize = parseInt(textSize.value, 10);
     const lineHeight = Math.round(fontSize * 1.2);
+    const font = textFont.value;
+    const bdPadX = Math.round(fontSize * 0.5);
+    const bdPadY = Math.round(fontSize * 0.25);
 
     ctx.save();
-    ctx.font = `700 ${fontSize}px "Segoe UI", Arial, sans-serif`;
+    ctx.font = `700 ${fontSize}px ${font}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
 
-    // Word-wrap to keep text inside the canvas
     const lines = wrapText(text, maxW);
-
-    // Determine vertical placement within the photo area only
     const blockH = lines.length * lineHeight;
-    let y;
-    if (textPosition.value === 'top') {
-      y = area.y + pad;
-    } else if (textPosition.value === 'middle') {
-      y = area.y + (area.h - blockH) / 2;
-    } else {
-      y = area.y + area.h - blockH - pad;
-    }
-    // Clamp so the text always stays inside the photo area
-    y = Math.max(area.y + pad, Math.min(y, area.y + area.h - blockH - pad));
 
-    const x = area.x + area.w / 2;
+    // Measure widest line for hit-testing
+    let blockW = 0;
+    lines.forEach(line => {
+      const w = Math.min(maxW, ctx.measureText(line).width);
+      if (w > blockW) blockW = w;
+    });
 
-    // Colour scheme
-    let fillStyle, strokeStyle, backdrop = null;
-    if (textColor.value === 'white') {
-      fillStyle = '#ffffff';
-      strokeStyle = 'rgba(0,0,0,0.55)';
-      backdrop = 'rgba(0,0,0,0.35)';
-    } else if (textColor.value === 'black') {
-      fillStyle = '#1a2942';
-      strokeStyle = 'rgba(255,255,255,0.7)';
-      backdrop = 'rgba(255,255,255,0.55)';
-    } else {
-      fillStyle = '#1a56db';
-      strokeStyle = 'rgba(255,255,255,0.8)';
-      backdrop = 'rgba(255,255,255,0.65)';
+    // Default position bottom-centred on first draw
+    if (!textState.customPlaced) {
+      textState.x = area.x + area.w / 2;
+      textState.y = area.y + area.h - pad - blockH / 2;
     }
 
-    // Soft backdrop pill behind the lines for legibility
-    if (backdrop) {
-      ctx.fillStyle = backdrop;
-      const bdPadX = Math.round(fontSize * 0.5);
-      const bdPadY = Math.round(fontSize * 0.25);
+    // Clamp centre so the whole block stays inside the photo area + padding
+    const halfW = blockW / 2 + bdPadX;
+    const halfH = blockH / 2 + bdPadY;
+    textState.x = Math.max(area.x + pad + halfW, Math.min(textState.x, area.x + area.w - pad - halfW));
+    textState.y = Math.max(area.y + pad + halfH, Math.min(textState.y, area.y + area.h - pad - halfH));
+
+    const centreX = textState.x;
+    const topY    = textState.y - blockH / 2;
+
+    // Background pill (transparent if alpha is 0)
+    const alpha = parseInt(bgAlpha.value, 10) / 100;
+    if (alpha > 0) {
+      ctx.fillStyle = hexToRgba(bgColor.value, alpha);
       lines.forEach((line, i) => {
         const w = Math.min(maxW, ctx.measureText(line).width) + bdPadX * 2;
-        const lineY = y + i * lineHeight;
-        roundRect(ctx, x - w / 2, lineY - bdPadY, w, lineHeight + bdPadY, Math.round(fontSize * 0.18));
+        const lineY = topY + i * lineHeight;
+        roundRect(ctx, centreX - w / 2, lineY - bdPadY, w, lineHeight + bdPadY, Math.round(fontSize * 0.18));
         ctx.fill();
       });
     }
 
-    ctx.lineWidth = Math.max(2, Math.round(fontSize * 0.06));
-    ctx.strokeStyle = strokeStyle;
-    ctx.fillStyle = fillStyle;
+    // Stroke helps legibility when the background is transparent or near-transparent.
+    if (alpha < 0.6) {
+      ctx.lineWidth = Math.max(2, Math.round(fontSize * 0.06));
+      ctx.strokeStyle = isDark(fontColor.value) ? 'rgba(255,255,255,0.75)' : 'rgba(0,0,0,0.55)';
+      lines.forEach((line, i) => {
+        ctx.strokeText(line, centreX, topY + i * lineHeight);
+      });
+    }
+
+    ctx.fillStyle = fontColor.value;
     lines.forEach((line, i) => {
-      const ly = y + i * lineHeight;
-      ctx.strokeText(line, x, ly);
-      ctx.fillText(line, x, ly);
+      ctx.fillText(line, centreX, topY + i * lineHeight);
     });
+
+    // Cache bounds (includes background-pill padding) for hit-testing
+    textState.bounds = {
+      x: centreX - blockW / 2 - bdPadX,
+      y: topY - bdPadY,
+      w: blockW + bdPadX * 2,
+      h: blockH + bdPadY * 2
+    };
+
     ctx.restore();
+  }
+
+  // ─────────────────────────────────────────────
+  // Colour helpers / WCAG contrast
+  // ─────────────────────────────────────────────
+  function hexToRgb(hex) {
+    const h = hex.replace('#', '');
+    return [
+      parseInt(h.substring(0, 2), 16),
+      parseInt(h.substring(2, 4), 16),
+      parseInt(h.substring(4, 6), 16)
+    ];
+  }
+
+  function hexToRgba(hex, alpha) {
+    const [r, g, b] = hexToRgb(hex);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
+  function isDark(hex) {
+    const [r, g, b] = hexToRgb(hex);
+    // Perceived luminance (Rec. 709 weights)
+    return (0.2126 * r + 0.7152 * g + 0.0722 * b) < 140;
+  }
+
+  function relLuminance(rgb) {
+    const f = v => {
+      v /= 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * f(rgb[0]) + 0.7152 * f(rgb[1]) + 0.0722 * f(rgb[2]);
+  }
+
+  function contrastRatio(rgb1, rgb2) {
+    const l1 = relLuminance(rgb1), l2 = relLuminance(rgb2);
+    const hi = Math.max(l1, l2), lo = Math.min(l1, l2);
+    return (hi + 0.05) / (lo + 0.05);
+  }
+
+  function blendOver(fg, alpha, bg) {
+    return [0, 1, 2].map(i => Math.round(fg[i] * alpha + bg[i] * (1 - alpha)));
+  }
+
+  function updateContrastBadge() {
+    const fg = hexToRgb(fontColor.value);
+    const bg = hexToRgb(bgColor.value);
+    const alpha = parseInt(bgAlpha.value, 10) / 100;
+    const fontSize = parseInt(textSize.value, 10);
+    // Bold ≥18.66px (14pt) counts as "large" per WCAG
+    const large = fontSize >= 18.66;
+    const aaThresh  = large ? 3.0 : 4.5;
+    const aaaThresh = large ? 4.5 : 7.0;
+
+    if (alpha < 0.05) {
+      // Fully transparent — contrast depends on the photo behind the text.
+      setPill(contrastAA,  null, 'AA — N/A');
+      setPill(contrastAAA, null, 'AAA — N/A');
+      contrastRatioEl.textContent = '–:1';
+      contrastDetail.textContent =
+        'Transparent background — contrast depends on the photo. Pick a background colour or rely on the text stroke for legibility.';
+      return;
+    }
+
+    // For semi-transparent, blend the bg colour onto a neutral mid-grey
+    // (proxy for an arbitrary photo) to get a representative ratio.
+    const effective = alpha >= 0.999 ? bg : blendOver(bg, alpha, [128, 128, 128]);
+    const ratio = contrastRatio(fg, effective);
+    const passAA  = ratio >= aaThresh;
+    const passAAA = ratio >= aaaThresh;
+
+    setPill(contrastAA,  passAA,  'AA '  + (passAA  ? 'Pass' : 'Fail'));
+    setPill(contrastAAA, passAAA, 'AAA ' + (passAAA ? 'Pass' : 'Fail'));
+    contrastRatioEl.textContent = ratio.toFixed(2) + ':1';
+
+    const sizeNote = large ? 'large text (≥18.66px bold)' : 'normal text';
+    let detail = `Ratio ${ratio.toFixed(2)}:1 vs ${sizeNote}. `;
+    detail += passAAA ? 'Meets WCAG AAA ✅'
+            : passAA  ? 'Meets WCAG AA but fails AAA ⚠️'
+                      : 'Fails WCAG AA ❌';
+    if (alpha < 0.999) detail += ' Estimated over a mid-grey photo.';
+    contrastDetail.textContent = detail;
+  }
+
+  function setPill(el, state, label) {
+    el.textContent = label;
+    el.className = 'contrast-pill ' + (state === true ? 'pass' : state === false ? 'fail' : 'na');
   }
 
   function roundRect(c, x, y, w, h, r) {
@@ -753,7 +936,8 @@
     // Initialise transform for the current format
     applyFormat(formatSelect.value);
     resetControls();
-    setStatus('✅ Ready! Drag the photo, then zoom/twist and add text.');
+    updateContrastBadge();
+    setStatus('✅ Ready! Drag the photo, then zoom/twist. Drag the text on the canvas to position it.');
   }
 
   function resetControls() {
@@ -763,6 +947,8 @@
     rotateValue.textContent = '0°';
     transform.scale = 1;
     transform.rotation = 0;
+    textState.customPlaced = false;
+    textState.bounds = null;
   }
 
   // ─────────────────────────────────────────────
@@ -799,10 +985,19 @@
   });
 
   textInput.addEventListener('input', drawComposite);
-  textPosition.addEventListener('change', drawComposite);
-  textColor.addEventListener('change', drawComposite);
+  textFont.addEventListener('change', drawComposite);
+
+  fontColor.addEventListener('input', () => { updateContrastBadge(); drawComposite(); });
+  bgColor.addEventListener('input',   () => { updateContrastBadge(); drawComposite(); });
+  bgAlpha.addEventListener('input', e => {
+    bgAlphaValue.textContent = e.target.value + '%';
+    updateContrastBadge();
+    drawComposite();
+  });
+
   textSize.addEventListener('input', e => {
     textSizeValue.textContent = e.target.value + 'px';
+    updateContrastBadge();
     drawComposite();
   });
 
@@ -810,6 +1005,7 @@
   // Drag on canvas (pointer events — works for mouse & touch)
   // ─────────────────────────────────────────────
   let dragging = false;
+  let dragTarget = null;  // 'photo' | 'text'
   let lastPointer = null;
 
   function canvasToImagePixels(clientX, clientY) {
@@ -819,18 +1015,33 @@
     return { x: (clientX - rect.left) * sx, y: (clientY - rect.top) * sy };
   }
 
+  function pointInBounds(p, b) {
+    return b && p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h;
+  }
+
   canvas.addEventListener('pointerdown', e => {
     if (!userImage) return;
+    const p = canvasToImagePixels(e.clientX, e.clientY);
+    // Prefer dragging the text block when the pointer is over it
+    dragTarget = (textInput.value.trim() && pointInBounds(p, textState.bounds)) ? 'text' : 'photo';
     dragging = true;
     canvas.setPointerCapture(e.pointerId);
-    lastPointer = canvasToImagePixels(e.clientX, e.clientY);
+    lastPointer = p;
   });
 
   canvas.addEventListener('pointermove', e => {
     if (!dragging || !userImage) return;
     const p = canvasToImagePixels(e.clientX, e.clientY);
-    transform.offsetX += p.x - lastPointer.x;
-    transform.offsetY += p.y - lastPointer.y;
+    const dx = p.x - lastPointer.x;
+    const dy = p.y - lastPointer.y;
+    if (dragTarget === 'text') {
+      textState.x += dx;
+      textState.y += dy;
+      textState.customPlaced = true;
+    } else {
+      transform.offsetX += dx;
+      transform.offsetY += dy;
+    }
     lastPointer = p;
     drawComposite();
   });
@@ -914,6 +1125,7 @@
     dropZone.style.display = '';
     dlFallback.style.display = 'none';
     resetControls();
+    updateContrastBadge();
     setStatus('');
   });
 
