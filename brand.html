@@ -1,1155 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <!--
+    Content-Security-Policy delivered via meta tag.
+    GitHub Pages cannot send arbitrary HTTP response headers, so this meta tag
+    is the available mechanism. A meta-tag CSP is browser-enforced and covers
+    the main directives needed here. Two headers remain unavailable on
+    GitHub Pages: X-Frame-Options and Permissions-Policy; both are recorded as
+    accepted security exceptions in docs/exceptions/SEC-LLBS-001-security-headers.md.
+
+    img-src allows data: and blob: because the canvas work produces data URIs
+    and the file upload creates blob URLs. The CORS proxy sources have been
+    removed now that the logo is self-hosted (ADR 005).
+  -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <!--
+    Referrer-Policy: sends the origin only (not the full URL) on cross-origin
+    requests, limiting what third-party sites learn about the visitor's navigation.
+  -->
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LLBS Photo Brander</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f0f4f8;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 24px 16px 48px;
-      color: #1a2942;
-    }
-
-    header {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 24px;
-    }
-
-    header img {
-      height: 56px;
-      object-fit: contain;
-    }
-
-    header h1 {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: #1a2942;
-      letter-spacing: 0.02em;
-    }
-
-    header p {
-      font-size: 0.88rem;
-      color: #5a6a82;
-    }
-
-    /* ── Upload area ── */
-    .upload-area {
-      width: 100%;
-      max-width: 560px;
-      border: 2.5px dashed #a3b8d8;
-      border-radius: 16px;
-      background: #fff;
-      padding: 40px 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
-    }
-
-    .upload-area:hover, .upload-area.drag-over {
-      border-color: #1a56db;
-      background: #eef3ff;
-    }
-
-    .upload-area svg { color: #1a56db; }
-
-    .upload-area span {
-      font-size: 0.95rem;
-      color: #5a6a82;
-    }
-
-    .upload-area strong { color: #1a2942; }
-
-    #fileInput { display: none; }
-
-    /* ── Editor layout ── */
-    .editor {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 18px;
-      width: 100%;
-      max-width: 980px;
-    }
-
-    .editor-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 320px;
-      gap: 24px;
-      width: 100%;
-      align-items: start;
-    }
-
-    @media (max-width: 820px) {
-      .editor-grid { grid-template-columns: 1fr; }
-    }
-
-    .canvas-wrap {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      background: #e2e8f0;
-      border-radius: 12px;
-      padding: 16px;
-      overflow: hidden;
-      touch-action: none;
-    }
-
-    canvas {
-      max-width: 100%;
-      height: auto;
-      border-radius: 8px;
-      box-shadow: 0 8px 32px rgba(26,41,66,0.18);
-      background: #fff;
-      cursor: grab;
-      display: block;
-    }
-
-    canvas:active { cursor: grabbing; }
-
-    /* ── Control panel ── */
-    .controls {
-      background: #fff;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 4px 16px rgba(26,41,66,0.08);
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .control-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .control-group label {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: #1a2942;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .control-group .value {
-      font-size: 0.78rem;
-      color: #5a6a82;
-      font-weight: 400;
-      text-transform: none;
-      letter-spacing: 0;
-    }
-
-    .control-group input[type="range"] {
-      width: 100%;
-      accent-color: #1a56db;
-    }
-
-    .control-group input[type="text"],
-    .control-group select,
-    .control-group textarea {
-      width: 100%;
-      padding: 8px 10px;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 6px;
-      font-size: 0.92rem;
-      font-family: inherit;
-      color: #1a2942;
-      background: #fff;
-    }
-
-    .control-group input[type="color"] {
-      width: 100%;
-      height: 40px;
-      padding: 2px;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 6px;
-      background: #fff;
-      cursor: pointer;
-    }
-
-    .control-group textarea { resize: vertical; min-height: 56px; }
-
-    .control-group input:focus,
-    .control-group select:focus,
-    .control-group textarea:focus {
-      outline: none;
-      border-color: #1a56db;
-      box-shadow: 0 0 0 3px rgba(26,86,219,0.15);
-    }
-
-    .contrast-badge {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding: 10px 12px;
-      border-radius: 8px;
-      border: 1.5px solid #cbd5e1;
-      background: #f8fafc;
-    }
-
-    .contrast-badge__row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .contrast-pill {
-      font-weight: 700;
-      padding: 3px 10px;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      letter-spacing: 0.04em;
-    }
-
-    .contrast-pill.pass { background: #d1fae5; color: #065f46; }
-    .contrast-pill.fail { background: #fee2e2; color: #991b1b; }
-    .contrast-pill.na   { background: #e2e8f0; color: #475569; }
-
-    .contrast-ratio {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #1a2942;
-    }
-
-    .contrast-detail {
-      font-size: 0.78rem;
-      color: #475569;
-      line-height: 1.35;
-    }
-
-    .control-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .small-btn {
-      padding: 8px 10px;
-      border-radius: 6px;
-      border: 1.5px solid #cbd5e1;
-      background: #fff;
-      color: #1a2942;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
-    }
-
-    .small-btn:hover { background: #eef3ff; border-color: #1a56db; }
-
-    .help-text {
-      font-size: 0.78rem;
-      color: #5a6a82;
-      line-height: 1.4;
-    }
-
-    /* ── Buttons ── */
-    .btn-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      justify-content: center;
-    }
-
-    button.action-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 22px;
-      border-radius: 8px;
-      border: none;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
-    }
-
-    button.action-btn:active { transform: scale(0.97); }
-
-    .btn-primary { background: #1a56db; color: #fff; }
-    .btn-primary:hover { opacity: 0.88; }
-
-    .btn-secondary {
-      background: #fff;
-      color: #1a56db;
-      border: 2px solid #1a56db;
-    }
-    .btn-secondary:hover { background: #eef3ff; }
-
-    .btn-danger {
-      background: #fff;
-      color: #c0392b;
-      border: 2px solid #c0392b;
-    }
-    .btn-danger:hover { background: #fdf0ef; }
-
-    #status {
-      font-size: 0.88rem;
-      color: #5a6a82;
-      min-height: 20px;
-      text-align: center;
-    }
-
-    #downloadFallback {
-      display: none;
-      font-size: 0.85rem;
-      color: #c0392b;
-      text-align: center;
-    }
-
-    .spinner {
-      display: none;
-      width: 22px; height: 22px;
-      border: 3px solid #c7d7f0;
-      border-top-color: #1a56db;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .divider {
-      height: 1px;
-      background: #e2e8f0;
-      margin: 4px 0;
-    }
-  </style>
+  <link rel="stylesheet" href="css/brand.css">
 </head>
 <body>
 
-<header>
-  <img id="headerLogo" src="https://bd.llbs.co.uk/wp-content/uploads/2024/02/LLBS-logo-with-text-300x83-1.webp" alt="LLBS Logo" />
-  <h1>LLBS Photo Brander</h1>
-  <p>Create a branded social media image &mdash; size, position, zoom &amp; add text</p>
-</header>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
 
-<!-- Upload -->
-<div class="upload-area" id="dropZone">
-  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-    <path stroke-linecap="round" stroke-linejoin="round"
-      d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-  </svg>
-  <span><strong>Click to upload</strong> or drag &amp; drop</span>
-  <span>JPG, PNG, WEBP, GIF &mdash; any size</span>
-  <input type="file" id="fileInput" accept="image/*" />
-</div>
+  <header>
+    <img id="headerLogo"
+         src="assets/llbs-logo-brander.png"
+         alt="Lincoln and Lindsey Blind Society logo"
+         width="300" height="83">
+    <h1>LLBS Photo Brander</h1>
+    <p>Create a branded social media image &mdash; size, position, zoom &amp; add text</p>
+  </header>
 
-<!-- Editor -->
-<div class="editor" id="editor">
-  <div class="editor-grid">
-    <div class="canvas-wrap">
-      <canvas id="canvas"></canvas>
-    </div>
+  <main id="main-content">
 
-    <div class="controls">
-      <div class="control-group">
-        <label for="formatSelect">Social Media Format</label>
-        <select id="formatSelect">
-          <option value="square">Instagram / Facebook Square (1080 &times; 1080)</option>
-          <option value="portrait">Story / Reel / TikTok (1080 &times; 1920)</option>
-          <option value="landscape">Twitter / X (1600 &times; 900)</option>
-          <option value="facebook">Facebook Post (1200 &times; 630)</option>
-        </select>
-      </div>
-
-      <div class="divider"></div>
-
-      <div class="control-group">
-        <label for="zoomSlider">Zoom <span class="value" id="zoomValue">100%</span></label>
-        <input type="range" id="zoomSlider" min="10" max="400" value="100" step="1" />
-      </div>
-
-      <div class="control-group">
-        <label for="rotateSlider">Twist / Rotate <span class="value" id="rotateValue">0&deg;</span></label>
-        <input type="range" id="rotateSlider" min="-180" max="180" value="0" step="1" />
-      </div>
-
-      <div class="control-row">
-        <button class="small-btn" id="centerBtn">Re-centre photo</button>
-        <button class="small-btn" id="fitBtn">Fit to frame</button>
-      </div>
-
-      <p class="help-text">Tip: drag the photo on the canvas to reposition. Use mouse wheel or pinch to zoom.</p>
-
-      <div class="divider"></div>
-
-      <div class="control-group">
-        <label for="textInput">Overlay Text</label>
-        <textarea id="textInput" placeholder="Add a headline or caption&hellip;" maxlength="200"></textarea>
-        <p class="help-text">Drag the text on the canvas to position it anywhere inside the frame.</p>
-      </div>
-
-      <div class="control-group">
-        <label for="textSize">Text Size <span class="value" id="textSizeValue">48px</span></label>
-        <input type="range" id="textSize" min="16" max="120" value="48" step="1" />
-      </div>
-
-      <div class="control-group">
-        <label for="textFont">Font</label>
-        <select id="textFont">
-          <option value="'DM Sans', Arial, sans-serif">DM Sans (LLBS brand)</option>
-          <option value="'Segoe UI', Arial, sans-serif" selected>Segoe UI / system</option>
-          <option value="Arial, Helvetica, sans-serif">Arial / Helvetica</option>
-          <option value="Georgia, serif">Georgia (serif)</option>
-          <option value="'Times New Roman', Times, serif">Times New Roman</option>
-          <option value="'Courier New', Courier, monospace">Courier (mono)</option>
-          <option value="Impact, sans-serif">Impact (display)</option>
-          <option value="Verdana, sans-serif">Verdana</option>
-        </select>
-      </div>
-
-      <div class="control-row">
-        <div class="control-group">
-          <label for="fontColor">Font colour</label>
-          <input type="color" id="fontColor" value="#ffffff" />
-        </div>
-        <div class="control-group">
-          <label for="bgColor">Background</label>
-          <input type="color" id="bgColor" value="#000000" />
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label for="bgAlpha">Background opacity <span class="value" id="bgAlphaValue">40%</span></label>
-        <input type="range" id="bgAlpha" min="0" max="100" value="40" step="1" />
-        <p class="help-text">Slide to 0% for a fully transparent text background.</p>
-      </div>
-
-      <div class="contrast-badge" aria-live="polite">
-        <div class="contrast-badge__row">
-          <span class="contrast-pill na" id="contrastAA">AA &mdash;</span>
-          <span class="contrast-pill na" id="contrastAAA">AAA &mdash;</span>
-          <span class="contrast-ratio" id="contrastRatio">&ndash;:1</span>
-        </div>
-        <p class="contrast-detail" id="contrastDetail">Pick a font and background colour to see the WCAG contrast rating.</p>
-      </div>
-    </div>
-  </div>
-
-  <div id="status"></div>
-
-  <div class="btn-row">
-    <button class="action-btn btn-primary" id="shareBtn">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <!-- Upload -->
+    <div class="upload-area" id="dropZone" role="button" tabindex="0"
+         aria-label="Upload a photo. Press Enter or Space to browse, or drag and drop an image file here.">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none"
+           viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
+           aria-hidden="true" focusable="false">
         <path stroke-linecap="round" stroke-linejoin="round"
-          d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+          d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
       </svg>
-      Share Image
-      <div class="spinner" id="shareSpinner"></div>
-    </button>
-    <button class="action-btn btn-secondary" id="downloadBtn">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-      </svg>
-      Download
-    </button>
-    <button class="action-btn btn-danger" id="resetBtn">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-      </svg>
-      Start Over
-    </button>
-  </div>
-  <p id="downloadFallback">Sharing not supported on this browser &mdash; please use the Download button instead.</p>
-</div>
-
-<script>
-  // ─────────────────────────────────────────────
-  // Config
-  // ─────────────────────────────────────────────
-  const LOGO_URL = 'https://bd.llbs.co.uk/wp-content/uploads/2024/02/LLBS-logo-with-text-300x83-1.webp';
-  const CORS_PROXIES = [
-    url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-    url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    url => url
-  ];
-
-  // Fixed social-media output sizes (pixels)
-  const FORMATS = {
-    square:    { w: 1080, h: 1080, label: 'Square' },
-    portrait:  { w: 1080, h: 1920, label: 'Portrait' },
-    landscape: { w: 1600, h:  900, label: 'Landscape' },
-    facebook:  { w: 1200, h:  630, label: 'Facebook' }
-  };
-
-  const BRAND_HEIGHT_RATIO = 0.10;   // branding strip = 10% of canvas height
-  const BRAND_MIN_PX       = 80;
-  const BRAND_MAX_PX       = 180;
-  const LINE_HEIGHT_RATIO  = 0.006;  // blue line thickness relative to height
-  const LINE_COLOR         = '#1a56db';
-  const LOGO_PADDING_RATIO = 0.10;
-  const LOGO_VERT_PAD      = 0.12;
-  const TEXT_PADDING_RATIO = 0.05;   // text margin from canvas edge
-
-  // Display canvas max size on screen (CSS pixels)
-  const DISPLAY_MAX = 600;
-
-  // ─────────────────────────────────────────────
-  // DOM refs
-  // ─────────────────────────────────────────────
-  const dropZone     = document.getElementById('dropZone');
-  const fileInput    = document.getElementById('fileInput');
-  const editor       = document.getElementById('editor');
-  const canvas       = document.getElementById('canvas');
-  const ctx          = canvas.getContext('2d');
-  const statusEl     = document.getElementById('status');
-  const shareBtn     = document.getElementById('shareBtn');
-  const downloadBtn  = document.getElementById('downloadBtn');
-  const resetBtn     = document.getElementById('resetBtn');
-  const shareSpinner = document.getElementById('shareSpinner');
-  const dlFallback   = document.getElementById('downloadFallback');
-
-  const formatSelect = document.getElementById('formatSelect');
-  const zoomSlider   = document.getElementById('zoomSlider');
-  const zoomValue    = document.getElementById('zoomValue');
-  const rotateSlider = document.getElementById('rotateSlider');
-  const rotateValue  = document.getElementById('rotateValue');
-  const centerBtn    = document.getElementById('centerBtn');
-  const fitBtn       = document.getElementById('fitBtn');
-  const textInput    = document.getElementById('textInput');
-  const textSize     = document.getElementById('textSize');
-  const textSizeValue= document.getElementById('textSizeValue');
-  const textFont     = document.getElementById('textFont');
-  const fontColor    = document.getElementById('fontColor');
-  const bgColor      = document.getElementById('bgColor');
-  const bgAlpha      = document.getElementById('bgAlpha');
-  const bgAlphaValue = document.getElementById('bgAlphaValue');
-  const contrastAA     = document.getElementById('contrastAA');
-  const contrastAAA    = document.getElementById('contrastAAA');
-  const contrastRatioEl= document.getElementById('contrastRatio');
-  const contrastDetail = document.getElementById('contrastDetail');
-
-  // ─────────────────────────────────────────────
-  // State
-  // ─────────────────────────────────────────────
-  let userImage = null;
-  let llbsLogo  = null;
-  let originalFileName = 'photo.jpg';
-
-  // Photo transform — in OUTPUT-canvas pixel space.
-  // offsetX/Y is centre of photo within the photo area.
-  let transform = {
-    offsetX: 0,
-    offsetY: 0,
-    scale:   1,      // multiplier on top of fit-to-frame base scale
-    rotation: 0,     // radians
-    baseScale: 1     // fit-to-frame scale (multiplied with scale)
-  };
-
-  let currentFormat = FORMATS.square;
-
-  // Text state — centre of text block in output-canvas pixels.
-  let textState = {
-    x: 0,
-    y: 0,
-    customPlaced: false,
-    bounds: null  // last drawn bbox for hit-testing {x,y,w,h}
-  };
-
-  // ─────────────────────────────────────────────
-  // Logo loading
-  // ─────────────────────────────────────────────
-  async function loadLogoWithFallback() {
-    for (const proxyFn of CORS_PROXIES) {
-      const url = proxyFn(LOGO_URL);
-      try { return await loadImage(url, true); }
-      catch (_) { /* try next */ }
-    }
-    throw new Error('Could not load LLBS logo.');
-  }
-
-  function loadImage(src, crossOrigin = false) {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      if (crossOrigin) img.crossOrigin = 'anonymous';
-      img.onload  = () => resolve(img);
-      img.onerror = () => reject(new Error(`Failed: ${src}`));
-      img.src = src;
-    });
-  }
-
-  // ─────────────────────────────────────────────
-  // Photo area helpers
-  // ─────────────────────────────────────────────
-  function getStripHeight() {
-    return Math.min(BRAND_MAX_PX,
-           Math.max(BRAND_MIN_PX, Math.round(currentFormat.h * BRAND_HEIGHT_RATIO)));
-  }
-
-  function getPhotoArea() {
-    const stripH = getStripHeight();
-    return { x: 0, y: 0, w: currentFormat.w, h: currentFormat.h - stripH, stripH };
-  }
-
-  function computeFitBaseScale() {
-    if (!userImage) return 1;
-    const area = getPhotoArea();
-    // Fit-to-frame: cover the photo area (no empty borders)
-    const sx = area.w / userImage.naturalWidth;
-    const sy = area.h / userImage.naturalHeight;
-    return Math.max(sx, sy);
-  }
-
-  function recentrePhoto() {
-    const area = getPhotoArea();
-    transform.offsetX = area.x + area.w / 2;
-    transform.offsetY = area.y + area.h / 2;
-  }
-
-  function applyFormat(key) {
-    currentFormat = FORMATS[key];
-    canvas.width  = currentFormat.w;
-    canvas.height = currentFormat.h;
-    sizeCanvasForDisplay();
-
-    if (userImage) {
-      transform.baseScale = computeFitBaseScale();
-      recentrePhoto();
-    }
-    // Re-anchor text to the new frame's default position
-    textState.customPlaced = false;
-    drawComposite();
-  }
-
-  function sizeCanvasForDisplay() {
-    // Constrain CSS size while keeping internal resolution
-    const aspect = currentFormat.w / currentFormat.h;
-    let cssW, cssH;
-    if (aspect >= 1) {
-      cssW = Math.min(DISPLAY_MAX, currentFormat.w);
-      cssH = cssW / aspect;
-    } else {
-      cssH = Math.min(DISPLAY_MAX, currentFormat.h);
-      cssW = cssH * aspect;
-    }
-    canvas.style.width  = cssW + 'px';
-    canvas.style.height = cssH + 'px';
-  }
-
-  // ─────────────────────────────────────────────
-  // Composite & draw
-  // ─────────────────────────────────────────────
-  function drawComposite() {
-    const W = currentFormat.w;
-    const H = currentFormat.h;
-    const area = getPhotoArea();
-
-    // Background
-    ctx.fillStyle = '#1a2942';
-    ctx.fillRect(0, 0, W, H);
-
-    // Photo area background (in case photo doesn't fully cover)
-    ctx.fillStyle = '#e2e8f0';
-    ctx.fillRect(area.x, area.y, area.w, area.h);
-
-    // Clip to photo area, then draw the photo with current transform
-    if (userImage) {
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(area.x, area.y, area.w, area.h);
-      ctx.clip();
-
-      const totalScale = transform.baseScale * transform.scale;
-      ctx.translate(transform.offsetX, transform.offsetY);
-      ctx.rotate(transform.rotation);
-      ctx.drawImage(
-        userImage,
-        -userImage.naturalWidth  * totalScale / 2,
-        -userImage.naturalHeight * totalScale / 2,
-        userImage.naturalWidth   * totalScale,
-        userImage.naturalHeight  * totalScale
-      );
-      ctx.restore();
-    }
-
-    // Overlay text (constrained inside the photo area, with padding)
-    drawText(area);
-
-    // Branding strip
-    drawBrandingStrip(area);
-  }
-
-  function drawText(area) {
-    const text = textInput.value.trim();
-    if (!text) { textState.bounds = null; return; }
-
-    const pad = Math.round(currentFormat.w * TEXT_PADDING_RATIO);
-    const maxW = area.w - pad * 2;
-    const fontSize = parseInt(textSize.value, 10);
-    const lineHeight = Math.round(fontSize * 1.2);
-    const font = textFont.value;
-    const bdPadX = Math.round(fontSize * 0.5);
-    const bdPadY = Math.round(fontSize * 0.25);
-
-    ctx.save();
-    ctx.font = `700 ${fontSize}px ${font}`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-
-    const lines = wrapText(text, maxW);
-    const blockH = lines.length * lineHeight;
-
-    // Measure widest line for hit-testing
-    let blockW = 0;
-    lines.forEach(line => {
-      const w = Math.min(maxW, ctx.measureText(line).width);
-      if (w > blockW) blockW = w;
-    });
-
-    // Default position bottom-centred on first draw
-    if (!textState.customPlaced) {
-      textState.x = area.x + area.w / 2;
-      textState.y = area.y + area.h - pad - blockH / 2;
-    }
-
-    // Clamp centre so the whole block stays inside the photo area + padding
-    const halfW = blockW / 2 + bdPadX;
-    const halfH = blockH / 2 + bdPadY;
-    textState.x = Math.max(area.x + pad + halfW, Math.min(textState.x, area.x + area.w - pad - halfW));
-    textState.y = Math.max(area.y + pad + halfH, Math.min(textState.y, area.y + area.h - pad - halfH));
-
-    const centreX = textState.x;
-    const topY    = textState.y - blockH / 2;
-
-    // Background pill (transparent if alpha is 0)
-    const alpha = parseInt(bgAlpha.value, 10) / 100;
-    if (alpha > 0) {
-      ctx.fillStyle = hexToRgba(bgColor.value, alpha);
-      lines.forEach((line, i) => {
-        const w = Math.min(maxW, ctx.measureText(line).width) + bdPadX * 2;
-        const lineY = topY + i * lineHeight;
-        roundRect(ctx, centreX - w / 2, lineY - bdPadY, w, lineHeight + bdPadY, Math.round(fontSize * 0.18));
-        ctx.fill();
-      });
-    }
-
-    // Stroke helps legibility when the background is transparent or near-transparent.
-    if (alpha < 0.6) {
-      ctx.lineWidth = Math.max(2, Math.round(fontSize * 0.06));
-      ctx.strokeStyle = isDark(fontColor.value) ? 'rgba(255,255,255,0.75)' : 'rgba(0,0,0,0.55)';
-      lines.forEach((line, i) => {
-        ctx.strokeText(line, centreX, topY + i * lineHeight);
-      });
-    }
-
-    ctx.fillStyle = fontColor.value;
-    lines.forEach((line, i) => {
-      ctx.fillText(line, centreX, topY + i * lineHeight);
-    });
-
-    // Cache bounds (includes background-pill padding) for hit-testing
-    textState.bounds = {
-      x: centreX - blockW / 2 - bdPadX,
-      y: topY - bdPadY,
-      w: blockW + bdPadX * 2,
-      h: blockH + bdPadY * 2
-    };
-
-    ctx.restore();
-  }
-
-  // ─────────────────────────────────────────────
-  // Colour helpers / WCAG contrast
-  // ─────────────────────────────────────────────
-  function hexToRgb(hex) {
-    const h = hex.replace('#', '');
-    return [
-      parseInt(h.substring(0, 2), 16),
-      parseInt(h.substring(2, 4), 16),
-      parseInt(h.substring(4, 6), 16)
-    ];
-  }
-
-  function hexToRgba(hex, alpha) {
-    const [r, g, b] = hexToRgb(hex);
-    return `rgba(${r},${g},${b},${alpha})`;
-  }
-
-  function isDark(hex) {
-    const [r, g, b] = hexToRgb(hex);
-    // Perceived luminance (Rec. 709 weights)
-    return (0.2126 * r + 0.7152 * g + 0.0722 * b) < 140;
-  }
-
-  function relLuminance(rgb) {
-    const f = v => {
-      v /= 255;
-      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-    };
-    return 0.2126 * f(rgb[0]) + 0.7152 * f(rgb[1]) + 0.0722 * f(rgb[2]);
-  }
-
-  function contrastRatio(rgb1, rgb2) {
-    const l1 = relLuminance(rgb1), l2 = relLuminance(rgb2);
-    const hi = Math.max(l1, l2), lo = Math.min(l1, l2);
-    return (hi + 0.05) / (lo + 0.05);
-  }
-
-  function blendOver(fg, alpha, bg) {
-    return [0, 1, 2].map(i => Math.round(fg[i] * alpha + bg[i] * (1 - alpha)));
-  }
-
-  function updateContrastBadge() {
-    const fg = hexToRgb(fontColor.value);
-    const bg = hexToRgb(bgColor.value);
-    const alpha = parseInt(bgAlpha.value, 10) / 100;
-    const fontSize = parseInt(textSize.value, 10);
-    // Bold ≥18.66px (14pt) counts as "large" per WCAG
-    const large = fontSize >= 18.66;
-    const aaThresh  = large ? 3.0 : 4.5;
-    const aaaThresh = large ? 4.5 : 7.0;
-
-    if (alpha < 0.05) {
-      // Fully transparent — contrast depends on the photo behind the text.
-      setPill(contrastAA,  null, 'AA — N/A');
-      setPill(contrastAAA, null, 'AAA — N/A');
-      contrastRatioEl.textContent = '–:1';
-      contrastDetail.textContent =
-        'Transparent background — contrast depends on the photo. Pick a background colour or rely on the text stroke for legibility.';
-      return;
-    }
-
-    // For semi-transparent, blend the bg colour onto a neutral mid-grey
-    // (proxy for an arbitrary photo) to get a representative ratio.
-    const effective = alpha >= 0.999 ? bg : blendOver(bg, alpha, [128, 128, 128]);
-    const ratio = contrastRatio(fg, effective);
-    const passAA  = ratio >= aaThresh;
-    const passAAA = ratio >= aaaThresh;
-
-    setPill(contrastAA,  passAA,  'AA '  + (passAA  ? 'Pass' : 'Fail'));
-    setPill(contrastAAA, passAAA, 'AAA ' + (passAAA ? 'Pass' : 'Fail'));
-    contrastRatioEl.textContent = ratio.toFixed(2) + ':1';
-
-    const sizeNote = large ? 'large text (≥18.66px bold)' : 'normal text';
-    let detail = `Ratio ${ratio.toFixed(2)}:1 vs ${sizeNote}. `;
-    detail += passAAA ? 'Meets WCAG AAA ✅'
-            : passAA  ? 'Meets WCAG AA but fails AAA ⚠️'
-                      : 'Fails WCAG AA ❌';
-    if (alpha < 0.999) detail += ' Estimated over a mid-grey photo.';
-    contrastDetail.textContent = detail;
-  }
-
-  function setPill(el, state, label) {
-    el.textContent = label;
-    el.className = 'contrast-pill ' + (state === true ? 'pass' : state === false ? 'fail' : 'na');
-  }
-
-  function roundRect(c, x, y, w, h, r) {
-    c.beginPath();
-    c.moveTo(x + r, y);
-    c.arcTo(x + w, y,     x + w, y + h, r);
-    c.arcTo(x + w, y + h, x,     y + h, r);
-    c.arcTo(x,     y + h, x,     y,     r);
-    c.arcTo(x,     y,     x + w, y,     r);
-    c.closePath();
-  }
-
-  function wrapText(text, maxWidth) {
-    const paragraphs = text.split(/\n/);
-    const lines = [];
-    paragraphs.forEach(paragraph => {
-      const words = paragraph.split(/\s+/);
-      let line = '';
-      words.forEach(word => {
-        const test = line ? line + ' ' + word : word;
-        if (ctx.measureText(test).width > maxWidth && line) {
-          lines.push(line);
-          line = word;
-        } else {
-          line = test;
-        }
-      });
-      if (line) lines.push(line);
-    });
-    return lines;
-  }
-
-  function drawBrandingStrip(area) {
-    const stripY = area.y + area.h;
-    const stripH = area.stripH;
-    const lineH = Math.max(3, Math.round(currentFormat.h * LINE_HEIGHT_RATIO));
-
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, stripY, currentFormat.w, stripH);
-
-    ctx.fillStyle = LINE_COLOR;
-    ctx.fillRect(0, stripY, currentFormat.w, lineH);
-
-    if (llbsLogo) {
-      const stripBody = stripH - lineH;
-      const availH   = stripBody * (1 - LOGO_VERT_PAD * 2);
-      const availW   = currentFormat.w * (1 - LOGO_PADDING_RATIO * 2);
-      const aspect   = llbsLogo.naturalWidth / llbsLogo.naturalHeight;
-
-      let logoW = availW;
-      let logoH = logoW / aspect;
-      if (logoH > availH) { logoH = availH; logoW = logoH * aspect; }
-
-      const logoX = (currentFormat.w - logoW) / 2;
-      const logoY = stripY + lineH + (stripBody - logoH) / 2;
-      ctx.drawImage(llbsLogo, logoX, logoY, logoW, logoH);
-    }
-  }
-
-  // ─────────────────────────────────────────────
-  // File handling
-  // ─────────────────────────────────────────────
-  async function handleFile(file) {
-    if (!file || !file.type.startsWith('image/')) {
-      setStatus('❌ Please choose a valid image file.'); return;
-    }
-
-    originalFileName = file.name.replace(/\.[^.]+$/, '') + '_llbs_branded.jpg';
-    setStatus('⏳ Loading image…');
-
-    const objectURL = URL.createObjectURL(file);
-    try {
-      userImage = await loadImage(objectURL);
-    } catch (e) {
-      setStatus('❌ Could not read image.'); return;
-    }
-
-    dropZone.style.display = 'none';
-    editor.style.display   = 'flex';
-
-    if (!llbsLogo) {
-      setStatus('⏳ Loading LLBS logo…');
-      try { llbsLogo = await loadLogoWithFallback(); }
-      catch { setStatus('⚠️ Logo unavailable — strip shown without logo.'); }
-    }
-
-    // Initialise transform for the current format
-    applyFormat(formatSelect.value);
-    resetControls();
-    updateContrastBadge();
-    setStatus('✅ Ready! Drag the photo, then zoom/twist. Drag the text on the canvas to position it.');
-  }
-
-  function resetControls() {
-    zoomSlider.value = 100;
-    zoomValue.textContent = '100%';
-    rotateSlider.value = 0;
-    rotateValue.textContent = '0°';
-    transform.scale = 1;
-    transform.rotation = 0;
-    textState.customPlaced = false;
-    textState.bounds = null;
-  }
-
-  // ─────────────────────────────────────────────
-  // Controls
-  // ─────────────────────────────────────────────
-  formatSelect.addEventListener('change', e => applyFormat(e.target.value));
-
-  zoomSlider.addEventListener('input', e => {
-    transform.scale = parseInt(e.target.value, 10) / 100;
-    zoomValue.textContent = e.target.value + '%';
-    drawComposite();
-  });
-
-  rotateSlider.addEventListener('input', e => {
-    const deg = parseInt(e.target.value, 10);
-    transform.rotation = deg * Math.PI / 180;
-    rotateValue.textContent = deg + '°';
-    drawComposite();
-  });
-
-  centerBtn.addEventListener('click', () => {
-    recentrePhoto();
-    drawComposite();
-  });
-
-  fitBtn.addEventListener('click', () => {
-    transform.baseScale = computeFitBaseScale();
-    transform.scale = 1;
-    transform.rotation = 0;
-    zoomSlider.value = 100; zoomValue.textContent = '100%';
-    rotateSlider.value = 0;  rotateValue.textContent = '0°';
-    recentrePhoto();
-    drawComposite();
-  });
-
-  textInput.addEventListener('input', drawComposite);
-  textFont.addEventListener('change', drawComposite);
-
-  fontColor.addEventListener('input', () => { updateContrastBadge(); drawComposite(); });
-  bgColor.addEventListener('input',   () => { updateContrastBadge(); drawComposite(); });
-  bgAlpha.addEventListener('input', e => {
-    bgAlphaValue.textContent = e.target.value + '%';
-    updateContrastBadge();
-    drawComposite();
-  });
-
-  textSize.addEventListener('input', e => {
-    textSizeValue.textContent = e.target.value + 'px';
-    updateContrastBadge();
-    drawComposite();
-  });
-
-  // ─────────────────────────────────────────────
-  // Drag on canvas (pointer events — works for mouse & touch)
-  // ─────────────────────────────────────────────
-  let dragging = false;
-  let dragTarget = null;  // 'photo' | 'text'
-  let lastPointer = null;
-
-  function canvasToImagePixels(clientX, clientY) {
-    const rect = canvas.getBoundingClientRect();
-    const sx = canvas.width  / rect.width;
-    const sy = canvas.height / rect.height;
-    return { x: (clientX - rect.left) * sx, y: (clientY - rect.top) * sy };
-  }
-
-  function pointInBounds(p, b) {
-    return b && p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h;
-  }
-
-  canvas.addEventListener('pointerdown', e => {
-    if (!userImage) return;
-    const p = canvasToImagePixels(e.clientX, e.clientY);
-    // Prefer dragging the text block when the pointer is over it
-    dragTarget = (textInput.value.trim() && pointInBounds(p, textState.bounds)) ? 'text' : 'photo';
-    dragging = true;
-    canvas.setPointerCapture(e.pointerId);
-    lastPointer = p;
-  });
-
-  canvas.addEventListener('pointermove', e => {
-    if (!dragging || !userImage) return;
-    const p = canvasToImagePixels(e.clientX, e.clientY);
-    const dx = p.x - lastPointer.x;
-    const dy = p.y - lastPointer.y;
-    if (dragTarget === 'text') {
-      textState.x += dx;
-      textState.y += dy;
-      textState.customPlaced = true;
-    } else {
-      transform.offsetX += dx;
-      transform.offsetY += dy;
-    }
-    lastPointer = p;
-    drawComposite();
-  });
-
-  function endDrag(e) {
-    if (!dragging) return;
-    dragging = false;
-    try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
-  }
-  canvas.addEventListener('pointerup',     endDrag);
-  canvas.addEventListener('pointercancel', endDrag);
-  canvas.addEventListener('pointerleave',  endDrag);
-
-  // Wheel zoom
-  canvas.addEventListener('wheel', e => {
-    if (!userImage) return;
-    e.preventDefault();
-    const cur = parseInt(zoomSlider.value, 10);
-    const next = Math.max(10, Math.min(400, cur + (e.deltaY < 0 ? 5 : -5)));
-    zoomSlider.value = next;
-    zoomSlider.dispatchEvent(new Event('input'));
-  }, { passive: false });
-
-  // ─────────────────────────────────────────────
-  // Share
-  // ─────────────────────────────────────────────
-  shareBtn.addEventListener('click', async () => {
-    if (!navigator.canShare) { dlFallback.style.display = 'block'; return; }
-
-    shareSpinner.style.display = 'inline-block';
-    setStatus('⏳ Preparing to share…');
-
-    canvas.toBlob(async (blob) => {
-      if (!blob) { setStatus('❌ Could not create image blob.'); shareSpinner.style.display = 'none'; return; }
-      const file = new File([blob], originalFileName, { type: 'image/jpeg' });
-
-      if (!navigator.canShare({ files: [file] })) {
-        dlFallback.style.display = 'block';
-        setStatus('');
-        shareSpinner.style.display = 'none';
-        return;
-      }
-
-      try {
-        await navigator.share({
-          files: [file],
-          title: 'LLBS Branded Photo',
-          text:  'Shared via LLBS Photo Brander — llbs.co.uk'
-        });
-        setStatus('✅ Shared successfully!');
-      } catch (err) {
-        setStatus(err.name === 'AbortError' ? '✅ Ready!' : '❌ Share failed: ' + err.message);
-      }
-      shareSpinner.style.display = 'none';
-    }, 'image/jpeg', 0.92);
-  });
-
-  // ─────────────────────────────────────────────
-  // Download
-  // ─────────────────────────────────────────────
-  downloadBtn.addEventListener('click', () => {
-    canvas.toBlob((blob) => {
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = originalFileName;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-      setStatus('✅ Download started!');
-    }, 'image/jpeg', 0.92);
-  });
-
-  // ─────────────────────────────────────────────
-  // Reset
-  // ─────────────────────────────────────────────
-  resetBtn.addEventListener('click', () => {
-    userImage = null;
-    fileInput.value = '';
-    textInput.value = '';
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    editor.style.display = 'none';
-    dropZone.style.display = '';
-    dlFallback.style.display = 'none';
-    resetControls();
-    updateContrastBadge();
-    setStatus('');
-  });
-
-  // ─────────────────────────────────────────────
-  // Drag & Drop upload
-  // ─────────────────────────────────────────────
-  dropZone.addEventListener('click',    () => fileInput.click());
-  fileInput.addEventListener('change',  e  => handleFile(e.target.files[0]));
-
-  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-  dropZone.addEventListener('dragleave',   () => dropZone.classList.remove('drag-over'));
-  dropZone.addEventListener('drop', e => {
-    e.preventDefault();
-    dropZone.classList.remove('drag-over');
-    handleFile(e.dataTransfer.files[0]);
-  });
-
-  // ─────────────────────────────────────────────
-  // Utility
-  // ─────────────────────────────────────────────
-  function setStatus(msg) { statusEl.textContent = msg; }
-
-  // Pre-warm the logo fetch
-  loadLogoWithFallback().then(img => { llbsLogo = img; }).catch(() => {});
-</script>
+      <span><strong>Click to upload</strong> or drag &amp; drop</span>
+      <span>JPG, PNG, WEBP, GIF &mdash; any size</span>
+      <input type="file" id="fileInput" accept="image/*" aria-label="Choose an image file to upload">
+    </div>
+
+    <!-- Editor -->
+    <div class="editor" id="editor">
+      <div class="editor-grid">
+        <div class="canvas-wrap">
+          <canvas id="canvas"
+                  aria-label="Branded image preview"
+                  tabindex="0"></canvas>
+        </div>
+
+        <div class="controls" role="form" aria-label="Photo brander controls">
+          <div class="control-group">
+            <label for="formatSelect">Social Media Format</label>
+            <select id="formatSelect">
+              <option value="square">Instagram / Facebook Square (1080 x 1080)</option>
+              <option value="portrait">Story / Reel / TikTok (1080 x 1920)</option>
+              <option value="landscape">Twitter / X (1600 x 900)</option>
+              <option value="facebook">Facebook Post (1200 x 630)</option>
+            </select>
+          </div>
+
+          <div class="divider" role="separator"></div>
+
+          <div class="control-group">
+            <label for="zoomSlider">Zoom <span class="value" id="zoomValue" aria-live="polite">100%</span></label>
+            <input type="range" id="zoomSlider" min="10" max="400" value="100" step="1"
+                   aria-valuemin="10" aria-valuemax="400" aria-valuenow="100" aria-valuetext="100 percent">
+          </div>
+
+          <div class="control-group">
+            <label for="rotateSlider">Twist / Rotate <span class="value" id="rotateValue" aria-live="polite">0 degrees</span></label>
+            <input type="range" id="rotateSlider" min="-180" max="180" value="0" step="1"
+                   aria-valuemin="-180" aria-valuemax="180" aria-valuenow="0" aria-valuetext="0 degrees">
+          </div>
+
+          <div class="control-row">
+            <button class="small-btn" id="centerBtn" type="button">Re-centre photo</button>
+            <button class="small-btn" id="fitBtn" type="button">Fit to frame</button>
+          </div>
+
+          <p class="help-text">Tip: drag the photo on the canvas to reposition. Use the mouse wheel or pinch to zoom.</p>
+
+          <div class="divider" role="separator"></div>
+
+          <div class="control-group">
+            <label for="textInput">Overlay Text</label>
+            <textarea id="textInput" placeholder="Add a headline or caption..." maxlength="200"></textarea>
+            <p class="help-text">Drag the text on the canvas to position it anywhere inside the frame.</p>
+          </div>
+
+          <div class="control-group">
+            <label for="textSize">Text Size <span class="value" id="textSizeValue" aria-live="polite">48px</span></label>
+            <input type="range" id="textSize" min="16" max="120" value="48" step="1"
+                   aria-valuemin="16" aria-valuemax="120" aria-valuenow="48" aria-valuetext="48 pixels">
+          </div>
+
+          <div class="control-group">
+            <label for="textFont">Font</label>
+            <select id="textFont">
+              <option value="'DM Sans', Arial, sans-serif">DM Sans (LLBS brand)</option>
+              <option value="'Segoe UI', Arial, sans-serif" selected>Segoe UI / system</option>
+              <option value="Arial, Helvetica, sans-serif">Arial / Helvetica</option>
+              <option value="Georgia, serif">Georgia (serif)</option>
+              <option value="'Times New Roman', Times, serif">Times New Roman</option>
+              <option value="'Courier New', Courier, monospace">Courier (mono)</option>
+              <option value="Impact, sans-serif">Impact (display)</option>
+              <option value="Verdana, sans-serif">Verdana</option>
+            </select>
+          </div>
+
+          <div class="control-row">
+            <div class="control-group">
+              <label for="fontColor">Font colour</label>
+              <input type="color" id="fontColor" value="#ffffff">
+            </div>
+            <div class="control-group">
+              <label for="bgColor">Background colour</label>
+              <input type="color" id="bgColor" value="#000000">
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label for="bgAlpha">Background opacity <span class="value" id="bgAlphaValue" aria-live="polite">40%</span></label>
+            <input type="range" id="bgAlpha" min="0" max="100" value="40" step="1"
+                   aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" aria-valuetext="40 percent">
+            <p class="help-text">Slide to 0% for a fully transparent text background.</p>
+          </div>
+
+          <div class="contrast-badge" aria-live="polite" aria-atomic="true"
+               aria-label="WCAG contrast rating for the chosen text and background colours">
+            <div class="contrast-badge__row">
+              <span class="contrast-pill na" id="contrastAA">AA --</span>
+              <span class="contrast-pill na" id="contrastAAA">AAA --</span>
+              <span class="contrast-ratio" id="contrastRatio">-:1</span>
+            </div>
+            <p class="contrast-detail" id="contrastDetail">Pick a font and background colour to see the WCAG contrast rating.</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="status" aria-live="polite" aria-atomic="true"></div>
+
+      <div class="btn-row">
+        <button class="action-btn btn-primary" id="shareBtn" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none"
+               viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+               aria-hidden="true" focusable="false">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+          </svg>
+          Share Image
+          <div class="spinner" id="shareSpinner" aria-hidden="true"></div>
+        </button>
+        <button class="action-btn btn-secondary" id="downloadBtn" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none"
+               viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+               aria-hidden="true" focusable="false">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          Download
+        </button>
+        <button class="action-btn btn-danger" id="resetBtn" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none"
+               viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+               aria-hidden="true" focusable="false">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
+          Start Over
+        </button>
+      </div>
+      <p id="downloadFallback">Sharing is not supported on this browser. Please use the Download button instead.</p>
+    </div>
+
+  </main>
+
+  <script src="js/brand.js"></script>
 </body>
 </html>

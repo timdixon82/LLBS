@@ -2,731 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <!--
+    Content-Security-Policy delivered via meta tag.
+    GitHub Pages cannot send arbitrary HTTP response headers, so this meta tag
+    is the available mechanism. A meta-tag CSP is browser-enforced and covers
+    the main directives needed here. Two headers remain unavailable on
+    GitHub Pages: X-Frame-Options and Permissions-Policy; both are recorded as
+    accepted security exceptions in docs/exceptions/SEC-LLBS-001-security-headers.md.
+
+    This is the target policy (ADR 004). All inline style attributes have been
+    converted to CSS classes in this file split, so 'unsafe-inline' is not
+    needed. All external font and image sources are removed now that fonts
+    and logos are self-hosted (ADR 005).
+  -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <!--
+    Referrer-Policy: sends the origin only (not the full URL) on cross-origin
+    requests, limiting what third-party sites learn about the visitor's navigation.
+  -->
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Living Well Together Strategy 2025–2030 | LLBS</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    /*
-      Palette extracted from PDF:
-      #156082  — primary teal-blue (main brand colour)
-      #042433  — dark navy
-      #0556A8  — bright blue accent (footer rule, highlights)
-      #4EA72E  — green (positive/strength)
-      #E7EAED  — very light grey (alternate row / card bg)
-      #CCD2D8  — mid grey (borders, inactive)
-      Tints of primary: P80=#44809B P86=#367694 P92=#286D8C P98=#1A6384
-    */
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --primary:      #156082;
-      --primary-dark: #042433;
-      --accent:       #0556A8;
-      --green:        #4EA72E;
-      --mid-grey:     #CCD2D8;
-      --light-bg:     #E7EAED;
-      --lighter-bg:   #F3F5F6;
-      --white:        #FFFFFF;
-      --text:         #1A1A1A;
-      --text-muted:   #4A5568;
-
-      /* Timeline tints (P80–P98 of #156082) */
-      --t80: #44809B;
-      --t86: #367694;
-      --t92: #286D8C;
-      --t98: #1A6384;
-
-      /* Value card tints (P36–P64) */
-      --p36: #ABC6D2;
-      --p46: #93B6C6;
-      --p56: #7CA6B9;
-      --p64: #6999AF;
-    }
-
-    body {
-      font-family: 'DM Sans', Arial, Helvetica, sans-serif;
-      color: var(--text);
-      background: var(--white);
-      line-height: 1.6;
-      font-size: 1rem;
-    }
-
-    /* Skip link */
-    .skip-link {
-      position: absolute;
-      top: -100%;
-      left: 0;
-      background: var(--accent);
-      color: var(--white);
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      font-weight: bold;
-      z-index: 9999;
-      text-decoration: none;
-    }
-    .skip-link:focus { top: 0; }
-
-    :focus-visible {
-      outline: 3px solid var(--accent);
-      outline-offset: 2px;
-    }
-
-    /* Header — matches llbs.co.uk style: white bar, DM Sans, dark links */
-    .site-header {
-      background: var(--white);
-      color: var(--text);
-      padding: 0.875rem 2rem;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.10);
-    }
-
-    .site-header__inner {
-      max-width: 1140px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-    }
-
-    .site-header__logo-link {
-      display: inline-flex;
-      align-items: center;
-      text-decoration: none;
-      flex-shrink: 0;
-    }
-
-    .site-header__logo-img {
-      height: 44px;
-      width: auto;
-      display: block;
-    }
-
-    .nav-toggle {
-      display: none;
-      background: none;
-      border: 2px solid rgba(0,0,0,0.25);
-      color: var(--text);
-      padding: 0.35rem 0.8rem;
-      cursor: pointer;
-      font-size: 0.9375rem;
-      border-radius: 3px;
-      font-family: inherit;
-    }
-
-    .site-nav ul {
-      list-style: none;
-      display: flex;
-      gap: 0.25rem;
-      flex-wrap: wrap;
-      padding: 0;
-    }
-
-    .site-nav a {
-      display: block;
-      color: var(--text);
-      text-decoration: none;
-      padding: 0.3rem 0.55rem;
-      border-radius: 3px;
-      font-size: 0.9375rem;
-      transition: background 0.15s, color 0.15s;
-    }
-
-    .site-nav a:hover,
-    .site-nav a:focus {
-      background: rgba(21,96,130,0.08);
-      color: var(--primary);
-    }
-
-    @media (max-width: 820px) {
-      .nav-toggle { display: block; }
-      .site-nav { width: 100%; display: none; }
-      .site-nav.is-open { display: block; }
-      .site-nav ul { flex-direction: column; gap: 0; margin-top: 0.4rem; }
-      .site-nav a { padding: 0.5rem 0.6rem; }
-    }
-
-    /* Layout */
-    section { padding: 3rem 2rem; }
-    section:nth-of-type(even):not(.cta-section) { background: var(--lighter-bg); }
-
-    .container {
-      max-width: 1140px;
-      margin: 0 auto;
-    }
-
-    .section-heading {
-      font-size: clamp(1.4rem, 2.8vw, 2rem);
-      color: var(--primary-dark);
-      margin-bottom: 0.625rem;
-      font-weight: bold;
-    }
-
-    .section-intro {
-      font-size: 1rem;
-      color: var(--text-muted);
-      max-width: 820px;
-      margin-bottom: 1.75rem;
-      line-height: 1.65;
-    }
-
-    .two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      align-items: start;
-    }
-    @media (max-width: 680px) { .two-col { grid-template-columns: 1fr; } }
-
-    /* Hero */
-    .hero {
-      background: var(--primary-dark);
-      color: var(--white);
-      padding: 5rem 2rem 4rem;
-      text-align: center;
-      position: relative;
-    }
-
-    .hero::after {
-      content: '';
-      display: block;
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 5px;
-      background: var(--accent);
-    }
-
-    .hero__eyebrow {
-      font-size: 0.8125rem;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--mid-grey);
-      margin-bottom: 1rem;
-    }
-
-    .hero__title {
-      font-size: clamp(2rem, 5vw, 3.25rem);
-      color: var(--white);
-      margin-bottom: 0.4rem;
-      font-weight: bold;
-    }
-
-    .hero__subtitle {
-      font-size: clamp(1.25rem, 3vw, 1.75rem);
-      font-weight: normal;
-      color: var(--p56);
-      margin-bottom: 2rem;
-    }
-
-    .hero__cta {
-      display: inline-block;
-      background: var(--primary);
-      color: var(--white);
-      padding: 0.875rem 2.25rem;
-      text-decoration: none;
-      font-weight: bold;
-      border-radius: 3px;
-      font-size: 1rem;
-      border: 2px solid var(--accent);
-      transition: background 0.2s;
-    }
-    .hero__cta:hover,
-    .hero__cta:focus { background: var(--accent); }
-
-    /* Stats */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 1.25rem;
-      margin: 1.75rem 0;
-    }
-
-    .stat-card {
-      background: var(--white);
-      border: 1px solid var(--mid-grey);
-      border-top: 4px solid var(--primary);
-      padding: 1.5rem;
-      text-align: center;
-    }
-
-    .stat-card__number {
-      font-size: 2.25rem;
-      font-weight: bold;
-      color: var(--primary);
-      display: block;
-    }
-
-    .stat-card__label {
-      font-size: 0.875rem;
-      color: var(--text-muted);
-      margin-top: 0.25rem;
-    }
-
-    /* Blockquote */
-    blockquote {
-      border-left: 4px solid var(--primary);
-      padding: 0.875rem 1.25rem;
-      margin: 1.25rem 0;
-      background: var(--light-bg);
-      font-style: italic;
-    }
-
-    blockquote footer {
-      font-style: normal;
-      color: var(--text-muted);
-      font-size: 0.875rem;
-      margin-top: 0.35rem;
-    }
-
-    /* SWOT */
-    .swot-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      border: 1px solid var(--mid-grey);
-    }
-    @media (max-width: 640px) { .swot-grid { grid-template-columns: 1fr; } }
-
-    .swot-quadrant { padding: 1.5rem; border: 1px solid var(--mid-grey); }
-
-    .swot-quadrant--s { background: #EBF5E9; }
-    .swot-quadrant--w { background: #FEF9E7; }
-    .swot-quadrant--o { background: #EBF1FA; }
-    .swot-quadrant--t { background: #FDEEEE; }
-
-    .swot-quadrant h3 {
-      font-size: 1rem;
-      margin-bottom: 0.75rem;
-      font-weight: bold;
-    }
-
-    .swot-quadrant--s h3 { color: #2A6A1A; }
-    .swot-quadrant--w h3 { color: #7A4800; }
-    .swot-quadrant--o h3 { color: var(--primary); }
-    .swot-quadrant--t h3 { color: #A01010; }
-
-    .swot-quadrant ul { list-style: none; padding: 0; }
-
-    .swot-quadrant li {
-      padding: 0.2rem 0 0.2rem 1.1rem;
-      font-size: 0.9375rem;
-      position: relative;
-    }
-
-    .swot-quadrant li::before {
-      content: '\2022';
-      position: absolute;
-      left: 0;
-      font-weight: bold;
-    }
-
-    .swot-quadrant--s li::before { color: #4EA72E; }
-    .swot-quadrant--w li::before { color: #B06000; }
-    .swot-quadrant--o li::before { color: var(--primary); }
-    .swot-quadrant--t li::before { color: #A01010; }
-
-    /* Vision / Mission */
-    .vmv-card {
-      background: var(--primary);
-      color: var(--white);
-      padding: 1.75rem;
-      margin-bottom: 1rem;
-      position: relative;
-    }
-
-    .vmv-card--dark { background: var(--primary-dark); }
-
-    .vmv-card__label {
-      font-size: 0.6875rem;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--p46);
-      margin-bottom: 0.5rem;
-      font-weight: bold;
-    }
-
-    .vmv-card__text { font-size: 1.0625rem; line-height: 1.55; }
-
-    /* Values */
-    .values-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 0;
-      border: 1px solid var(--mid-grey);
-      margin-top: 1.25rem;
-    }
-
-    .value-card {
-      padding: 1.25rem;
-      border: 1px solid var(--mid-grey);
-      background: var(--white);
-      border-top: 4px solid var(--primary);
-    }
-
-    .value-card:nth-child(2) { border-top-color: var(--t80); }
-    .value-card:nth-child(3) { border-top-color: var(--t86); }
-    .value-card:nth-child(4) { border-top-color: var(--t92); }
-    .value-card:nth-child(5) { border-top-color: var(--t98); }
-
-    .value-card h3 { color: var(--primary-dark); font-size: 0.9375rem; margin-bottom: 0.4rem; font-weight: bold; }
-    .value-card p  { font-size: 0.875rem; color: var(--text-muted); }
-
-    /* Strategy table */
-    .themes-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1.5rem;
-      font-size: 0.9375rem;
-    }
-
-    .themes-table th {
-      background: var(--primary-dark);
-      color: var(--white);
-      padding: 0.875rem 1rem;
-      text-align: left;
-      font-weight: bold;
-    }
-
-    .themes-table td {
-      padding: 0.875rem 1rem;
-      border-bottom: 1px solid var(--mid-grey);
-      border-right: 1px solid var(--mid-grey);
-      vertical-align: top;
-    }
-
-    .themes-table tr:nth-child(even) td { background: var(--light-bg); }
-
-    /* Theme label pills */
-    .theme-label {
-      display: inline-block;
-      padding: 0.2rem 0.65rem;
-      font-size: 0.8125rem;
-      font-weight: bold;
-      color: var(--white);
-      background: var(--primary);
-      white-space: nowrap;
-    }
-
-    .theme-label--t80 { background: var(--t80); }
-    .theme-label--t86 { background: var(--t86); }
-    .theme-label--t92 { background: var(--t92); }
-    .theme-label--t98 { background: var(--t98); }
-
-    /* Timeline */
-    .timeline-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1.5rem;
-      font-size: 0.9375rem;
-    }
-
-    .timeline-table th {
-      background: var(--primary);
-      color: var(--white);
-      padding: 0.625rem 0.75rem;
-      text-align: center;
-    }
-
-    .timeline-table th:first-child { text-align: left; }
-
-    .timeline-table td {
-      padding: 0;
-      border-top: 1px solid var(--mid-grey);
-      border-bottom: 1px solid var(--mid-grey);
-      border-left: none;
-      border-right: none;
-      text-align: center;
-      vertical-align: middle;
-    }
-
-    .timeline-table td:first-child {
-      text-align: left;
-      padding: 0.625rem 0.75rem 0.625rem 0.875rem;
-      font-weight: bold;
-      border: 1px solid var(--mid-grey);
-    }
-
-    .timeline-table td:last-child {
-      border-right: 1px solid var(--mid-grey);
-    }
-
-    .timeline-bar {
-      display: block;
-      height: 24px;
-      background: var(--primary);
-    }
-
-    .timeline-bar--t80 { background: var(--t80); }
-    .timeline-bar--t86 { background: var(--t86); }
-    .timeline-bar--t92 { background: var(--t92); }
-    .timeline-bar--t98 { background: var(--t98); }
-
-    /* Half-year bars */
-    .timeline-bar--half-left  { width: 50%; }
-    .timeline-bar--half-right { width: 50%; margin-left: 50%; }
-
-    /* Tabs */
-    .tabs { margin-top: 1.5rem; }
-
-    .tab-list {
-      display: flex;
-      gap: 0;
-      flex-wrap: wrap;
-      border-bottom: 3px solid var(--mid-grey);
-      list-style: none;
-      padding: 0;
-    }
-
-    .tab-button {
-      padding: 0.65rem 1.1rem;
-      border: 1px solid transparent;
-      border-bottom: none;
-      background: var(--light-bg);
-      cursor: pointer;
-      font-size: 0.9375rem;
-      color: var(--primary-dark);
-      margin-bottom: -3px;
-      font-weight: normal;
-      transition: background 0.15s;
-    }
-
-    .tab-button:hover { background: var(--mid-grey); }
-
-    .tab-button[aria-selected="true"] {
-      background: var(--white);
-      font-weight: bold;
-      border-color: var(--mid-grey);
-      border-bottom-color: var(--white);
-      color: var(--primary);
-      border-bottom: 3px solid var(--accent);
-    }
-
-    .tab-panel {
-      padding: 2rem;
-      border: 1px solid var(--mid-grey);
-      border-top: none;
-      background: var(--white);
-    }
-
-    .tab-panel[hidden] { display: none; }
-
-    .theme-outcome-box {
-      border-left: 4px solid var(--primary);
-      background: var(--light-bg);
-      padding: 0.875rem 1.25rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .theme-outcome-box__label {
-      font-size: 0.6875rem;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: var(--text-muted);
-      margin-bottom: 0.2rem;
-      font-weight: bold;
-    }
-
-    .theme-outcome-box__text {
-      font-weight: bold;
-      font-size: 1rem;
-      color: var(--primary-dark);
-    }
-
-    .routes-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
-
-    .route-box {
-      background: var(--lighter-bg);
-      border: 1px solid var(--mid-grey);
-      border-top: 3px solid var(--primary);
-      padding: 1.25rem;
-    }
-
-    .route-box h4 {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: var(--primary);
-      margin-bottom: 0.625rem;
-      font-weight: bold;
-    }
-
-    .route-box ul { list-style: none; padding: 0; }
-
-    .route-box li {
-      padding: 0.2rem 0 0.2rem 1rem;
-      font-size: 0.9375rem;
-      position: relative;
-    }
-
-    .route-box li::before {
-      content: '\2022';
-      position: absolute;
-      left: 0;
-      color: var(--primary);
-    }
-
-    /* Income */
-    .income-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 1.25rem;
-      margin-bottom: 2rem;
-    }
-
-    .income-card {
-      background: var(--primary-dark);
-      color: var(--white);
-      padding: 1.75rem;
-      text-align: center;
-      border-bottom: 4px solid var(--accent);
-    }
-
-    .income-card--mid { background: var(--primary); }
-    .income-card--teal { background: var(--t86); }
-
-    .income-card__number {
-      font-size: 2.75rem;
-      font-weight: bold;
-      color: var(--p46);
-      display: block;
-    }
-
-    .income-card__label { font-size: 0.9375rem; }
-
-    /* JHWS table */
-    .jhws-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9375rem;
-    }
-
-    .jhws-table th {
-      background: var(--primary-dark);
-      color: var(--white);
-      padding: 0.875rem 1rem;
-      text-align: left;
-    }
-
-    .jhws-table td {
-      padding: 0.875rem 1rem;
-      border-bottom: 1px solid var(--mid-grey);
-      border-right: 1px solid var(--mid-grey);
-      vertical-align: top;
-    }
-
-    .jhws-table tr:nth-child(even) td { background: var(--light-bg); }
-
-    /* CTA section */
-    .cta-section {
-      background: var(--primary-dark);
-      color: var(--white);
-      position: relative;
-    }
-
-    .cta-section::before {
-      content: '';
-      display: block;
-      height: 5px;
-      background: var(--accent);
-    }
-
-    .cta-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      margin: 1.75rem 0;
-      text-align: left;
-    }
-    @media (max-width: 680px) { .cta-grid { grid-template-columns: 1fr; } }
-
-    .cta-grid ul { list-style: none; padding: 0; }
-
-    .cta-grid li {
-      padding: 0.35rem 0 0.35rem 1.4rem;
-      position: relative;
-      font-size: 0.9375rem;
-    }
-
-    .cta-grid li::before {
-      content: '\2714';
-      position: absolute;
-      left: 0;
-      color: var(--green);
-      font-weight: bold;
-    }
-
-    .cta-contact {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-top: 1.5rem;
-      justify-content: center;
-    }
-
-    .cta-contact a {
-      display: inline-block;
-      background: var(--accent);
-      color: var(--white);
-      text-decoration: none;
-      padding: 0.875rem 2rem;
-      font-weight: bold;
-      font-size: 1rem;
-      border: 2px solid transparent;
-      transition: background 0.2s, border-color 0.2s;
-    }
-
-    .cta-contact a:hover,
-    .cta-contact a:focus {
-      background: transparent;
-      border-color: var(--white);
-    }
-
-    /* Footer */
-    footer {
-      background: #02131D;
-      color: var(--mid-grey);
-      padding: 1.75rem 2rem;
-      text-align: center;
-      font-size: 0.875rem;
-      border-top: 5px solid var(--accent);
-    }
-
-    footer a { color: var(--p46); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
-
-    /* Utility */
-    .visually-hidden {
-      position: absolute;
-      width: 1px; height: 1px;
-      padding: 0; margin: -1px;
-      overflow: hidden;
-      clip: rect(0,0,0,0);
-      white-space: nowrap;
-      border: 0;
-    }
-
-    /* Shared helper */
-    .inset-box {
-      background: var(--light-bg);
-      border-left: 4px solid var(--primary);
-      padding: 1.25rem;
-      margin-top: 1rem;
-    }
-
-    .inset-box h4 { color: var(--primary-dark); margin-bottom: 0.4rem; font-size: 1rem; }
-  </style>
+  <title>Living Well Together Strategy 2025&#x2013;2030 | LLBS</title>
+  <link rel="stylesheet" href="css/strategy.css">
 </head>
 <body>
 
@@ -734,8 +32,11 @@
 
   <header class="site-header" role="banner">
     <div class="site-header__inner">
-      <a class="site-header__logo-link" href="https://www.llbs.co.uk" aria-label="Lincoln and Lindsey Blind Society — visit website">
-        <img class="site-header__logo-img" src="https://www.llbs.co.uk/wp-content/uploads/2023/05/LLBS-logo-with-text.png" alt="Lincoln and Lindsey Blind Society">
+      <a class="site-header__logo-link" href="https://www.llbs.co.uk"
+         aria-label="Lincoln and Lindsey Blind Society &#x2014; visit website">
+        <img class="site-header__logo-img"
+             src="assets/llbs-logo-with-text.png"
+             alt="Lincoln and Lindsey Blind Society">
       </a>
       <button class="nav-toggle" aria-controls="main-nav" aria-expanded="false" type="button">Menu</button>
       <nav class="site-nav" id="main-nav" aria-label="Page sections">
@@ -770,7 +71,7 @@
         <h2 class="section-heading" id="intro-heading">Introduction</h2>
         <p class="section-intro">For over 100 years, LLBS has stood beside visually impaired people across Greater Lincolnshire.</p>
         <p>As demand grows and the world evolves, we set out in 2025 to re-imagine how we can best support our community for the years ahead.</p>
-        <p style="margin-top:1rem;">Through heartfelt conversations, surveys, data and strategy days with members, trustees, staff, volunteers and partners, we listened deeply to what matters most. This collective insight has shaped a clear, community-led direction that will guide our work over the next five years &mdash; strengthening connection, expanding opportunity, and helping people with sight loss thrive.</p>
+        <p class="mt-1">Through heartfelt conversations, surveys, data and strategy days with members, trustees, staff, volunteers and partners, we listened deeply to what matters most. This collective insight has shaped a clear, community-led direction that will guide our work over the next five years &mdash; strengthening connection, expanding opportunity, and helping people with sight loss thrive.</p>
       </div>
     </section>
 
@@ -795,19 +96,19 @@
           </div>
           <div class="stat-card" role="listitem">
             <span class="stat-card__number">52,000</span>
-            <p class="stat-card__label">Projected people with vision impairment in Greater Lincolnshire by 2032 (RNIB)</p>
+            <p class="stat-card__label">Projected people with vision impairment in Greater Lincolnshire by 2032 (Royal National Institute of Blind People (RNIB))</p>
           </div>
         </div>
 
-        <div class="two-col" style="margin-top:2rem;">
+        <div class="two-col mt-2">
           <div>
-            <h3 style="color:var(--primary-dark);margin-bottom:0.625rem;">Our Response</h3>
+            <h3 class="two-col-heading">Our Response</h3>
             <ul>
               <li>Personal, one-to-one support delivered in homes and communities</li>
               <li>Focused on maintaining and rebuilding independence</li>
               <li>Delivered by specialist sight impairment officers and volunteers with deep local knowledge</li>
             </ul>
-            <h3 style="color:var(--primary-dark);margin-top:1.25rem;margin-bottom:0.625rem;">Challenges Members Face</h3>
+            <h3 class="two-col-heading two-col-heading--top">Challenges Members Face</h3>
             <ul>
               <li>Isolation and reduced confidence</li>
               <li>Limited transport options</li>
@@ -821,7 +122,7 @@
               <p>&ldquo;Some days I cope well, and other days I don&rsquo;t &mdash; my needs change all the time. Knowing LLBS understands that and helps me adapt has made me feel less alone and more in control of my life.&rdquo;</p>
               <footer>&mdash; LLBS Member</footer>
             </blockquote>
-            <div class="inset-box" style="margin-top:1.5rem;">
+            <div class="inset-box mt-15">
               <h4>Why This Matters</h4>
               <p>Support is only effective if people know it exists. We want a greater impact for existing members and to reach those not yet connected to us.</p>
             </div>
@@ -897,26 +198,26 @@
           <p class="vmv-card__text">We provide personal, practical, and lifelong support for people affected by visual impairment across Greater Lincolnshire. We help people stay independent, overcome isolation, and belong to a caring local community.</p>
         </div>
 
-        <h3 style="color:var(--primary-dark);margin-top:0.5rem;margin-bottom:0.875rem;">Our Values</h3>
+        <h3 class="values-heading">Our Values</h3>
         <div class="values-grid" role="list">
           <div class="value-card" role="listitem">
-            <h3>Personal</h3>
+            <h4>Personal</h4>
             <p>We know people by name and treat everyone with warmth, respect and understanding &mdash; no matter their age, background or experiences of sight loss.</p>
           </div>
           <div class="value-card" role="listitem">
-            <h3>Community</h3>
+            <h4>Community</h4>
             <p>We are rooted in Greater Lincolnshire&rsquo;s communities and reach those who are rural or isolated.</p>
           </div>
           <div class="value-card" role="listitem">
-            <h3>Reliable</h3>
+            <h4>Reliable</h4>
             <p>We show up, for as long as needed, and keep our promises &mdash; we are open, honest and fair.</p>
           </div>
           <div class="value-card" role="listitem">
-            <h3>Empowering</h3>
+            <h4>Empowering</h4>
             <p>We build confidence, not dependency. We focus on what works and what makes daily life better.</p>
           </div>
           <div class="value-card" role="listitem">
-            <h3>Collaborative</h3>
+            <h4>Collaborative</h4>
             <p>We work with families, volunteers, and partners to deliver our mission.</p>
           </div>
         </div>
@@ -929,7 +230,7 @@
         <h2 class="section-heading" id="strategy-heading">Living Well Together Strategy 2025&ndash;30</h2>
         <p class="section-intro">Four themes shape our direction. This strategy sets direction and outcomes; specific actions will be developed through detailed theme plans and member engagement.</p>
 
-        <div style="overflow-x:auto;">
+        <div class="overflow-x-auto">
           <table class="themes-table" aria-label="Strategy themes with starting points, intended directions, and 2030 outcomes">
             <thead>
               <tr>
@@ -968,10 +269,10 @@
           </table>
         </div>
 
-        <h3 style="color:var(--primary-dark);margin-top:2.5rem;margin-bottom:0.5rem;" id="timeline-heading">Strategy Timeline</h3>
-        <p style="font-size:0.9375rem;color:var(--text-muted);margin-bottom:1rem;">The Future Ready theme enables the delivery of all other themes and has been sequenced to account for dependencies and resource impact.</p>
+        <h3 class="timeline-heading" id="timeline-heading">Strategy Timeline</h3>
+        <p class="timeline-intro">The Future Ready theme enables the delivery of all other themes and has been sequenced to account for dependencies and resource impact.</p>
 
-        <div style="overflow-x:auto;">
+        <div class="overflow-x-auto">
           <table class="timeline-table" aria-labelledby="timeline-heading">
             <caption class="visually-hidden">Strategy implementation timeline 2026 to 2030. All four themes are active across all five years.</caption>
             <thead>
@@ -1028,6 +329,10 @@
       <div class="container">
         <h2 class="section-heading" id="themes-heading">Theme Detail</h2>
         <p class="section-intro">Explore each strategic theme: the why, intended direction, and routes to outcome. Use arrow keys to move between tabs.</p>
+
+        <noscript>
+          <p class="no-js-notice">The tab navigation on this section requires JavaScript to be enabled. Please enable JavaScript in your browser to use the interactive theme tabs.</p>
+        </noscript>
 
         <div class="tabs">
           <ul class="tab-list" role="tablist" aria-label="Strategy themes">
@@ -1087,7 +392,7 @@
 
           <!-- Transport -->
           <div id="panel-transport" role="tabpanel" aria-labelledby="tab-transport" class="tab-panel" hidden>
-            <div class="theme-outcome-box" style="border-left-color:var(--t80);">
+            <div class="theme-outcome-box theme-outcome-box--t80">
               <p class="theme-outcome-box__label">Intended Outcome by 2030</p>
               <p class="theme-outcome-box__text">Members are better able to get out, access services, and engage in their communities.</p>
             </div>
@@ -1096,15 +401,15 @@
               <footer>&mdash; LLBS Member</footer>
             </blockquote>
             <div class="routes-grid">
-              <div class="route-box" style="border-top-color:var(--t80);">
+              <div class="route-box route-box--t80">
                 <h4>Why</h4>
                 <p>Because without accessible and reliable transport, people with sight loss become isolated, excluded from services, and unable to participate in community life.</p>
               </div>
-              <div class="route-box" style="border-top-color:var(--t80);">
+              <div class="route-box route-box--t80">
                 <h4>Intended Direction</h4>
                 <p>LLBS will prioritise transport as a core enabler of independence and connection, recognising that access to social groups, health care, volunteering, and daily life depends on the ability to get out and about.</p>
               </div>
-              <div class="route-box" style="border-top-color:var(--t80);">
+              <div class="route-box route-box--t80">
                 <h4>Reason</h4>
                 <ul>
                   <li>Transport is consistently identified as one of the biggest barriers for members</li>
@@ -1113,7 +418,7 @@
                   <li>Inaccessible transport undermines the impact of all other LLBS support</li>
                 </ul>
               </div>
-              <div class="route-box" style="border-top-color:var(--t80);">
+              <div class="route-box route-box--t80">
                 <h4>Routes to Outcome</h4>
                 <ul>
                   <li>Partnerships with local and community transport providers</li>
@@ -1127,7 +432,7 @@
 
           <!-- Wellbeing -->
           <div id="panel-wellbeing" role="tabpanel" aria-labelledby="tab-wellbeing" class="tab-panel" hidden>
-            <div class="theme-outcome-box" style="border-left-color:var(--t86);">
+            <div class="theme-outcome-box theme-outcome-box--t86">
               <p class="theme-outcome-box__label">Intended Outcome by 2030</p>
               <p class="theme-outcome-box__text">Members report improved wellbeing, confidence, and resilience.</p>
             </div>
@@ -1136,15 +441,15 @@
               <footer>&mdash; LLBS Member</footer>
             </blockquote>
             <div class="routes-grid">
-              <div class="route-box" style="border-top-color:var(--t86);">
+              <div class="route-box route-box--t86">
                 <h4>Why</h4>
                 <p>Because sight loss affects mental health, identity, and confidence, and wellbeing support must be ongoing, personal, and rooted in human connection.</p>
               </div>
-              <div class="route-box" style="border-top-color:var(--t86);">
+              <div class="route-box route-box--t86">
                 <h4>Intended Direction</h4>
                 <p>LLBS will prioritise wellbeing as a core part of living well with vision impairment, providing ongoing, person-centred support rooted in human connection, peer support, and trusted local relationships.</p>
               </div>
-              <div class="route-box" style="border-top-color:var(--t86);">
+              <div class="route-box route-box--t86">
                 <h4>Reason</h4>
                 <ul>
                   <li>Sight loss is often accompanied by grief, anxiety, and loss of confidence</li>
@@ -1153,7 +458,7 @@
                   <li>Generic mental health services are often inaccessible, time-limited, or not sight-specific</li>
                 </ul>
               </div>
-              <div class="route-box" style="border-top-color:var(--t86);">
+              <div class="route-box route-box--t86">
                 <h4>Routes to Outcome</h4>
                 <ul>
                   <li>Social, creative, and activity-based groups that build confidence and connection</li>
@@ -1167,7 +472,7 @@
 
           <!-- Future Ready -->
           <div id="panel-future" role="tabpanel" aria-labelledby="tab-future" class="tab-panel" hidden>
-            <div class="theme-outcome-box" style="border-left-color:var(--t92);">
+            <div class="theme-outcome-box theme-outcome-box--t92">
               <p class="theme-outcome-box__label">Intended Outcome by 2030</p>
               <p class="theme-outcome-box__text">A resilient, well-governed charity able to support people for as long as needed.</p>
             </div>
@@ -1176,15 +481,15 @@
               <footer>&mdash; LLBS Member</footer>
             </blockquote>
             <div class="routes-grid">
-              <div class="route-box" style="border-top-color:var(--t92);">
+              <div class="route-box route-box--t92">
                 <h4>Why</h4>
                 <p>Because strong governance, effective systems, clear communication, and meaningful engagement are what make community support reliable, sustainable, and trusted. LLBS must respond consistently, grow responsibly, and never let people fall through the gaps.</p>
               </div>
-              <div class="route-box" style="border-top-color:var(--t92);">
+              <div class="route-box route-box--t92">
                 <h4>Intended Direction</h4>
                 <p>LLBS will strengthen its foundations and ways of working, ensuring the organisation has the capacity, systems, and skills needed to support people consistently, respond to change, and grow responsibly.</p>
               </div>
-              <div class="route-box" style="border-top-color:var(--t92);">
+              <div class="route-box route-box--t92">
                 <h4>Reason</h4>
                 <ul>
                   <li>Demand is increasing while capacity remains stretched</li>
@@ -1194,7 +499,7 @@
                   <li>Strong operations enable all other themes to succeed</li>
                 </ul>
               </div>
-              <div class="route-box" style="border-top-color:var(--t92);">
+              <div class="route-box route-box--t92">
                 <h4>Routes to Outcome</h4>
                 <ul>
                   <li>Strengthening governance, skills, and capacity across trustees, staff, and volunteers</li>
@@ -1209,21 +514,21 @@
       </div>
     </section>
 
-    <!-- INCOME & SUSTAINABILITY -->
+    <!-- INCOME AND SUSTAINABILITY -->
     <section id="income" aria-labelledby="income-heading">
       <div class="container">
         <h2 class="section-heading" id="income-heading">Income &amp; Sustainability</h2>
 
-        <div class="income-grid" aria-label="Income growth targets">
-          <div class="income-card">
+        <div class="income-grid" role="list" aria-label="Income growth targets">
+          <div class="income-card" role="listitem">
             <span class="income-card__number">9.3%</span>
             <p class="income-card__label">Annual income growth needed to maintain current services</p>
           </div>
-          <div class="income-card income-card--mid">
+          <div class="income-card income-card--mid" role="listitem">
             <span class="income-card__number">+4%</span>
             <p class="income-card__label">Further growth needed to deliver this strategy</p>
           </div>
-          <div class="income-card income-card--teal">
+          <div class="income-card income-card--teal" role="listitem">
             <span class="income-card__number">~13%</span>
             <p class="income-card__label">Total annual income growth target</p>
           </div>
@@ -1231,12 +536,12 @@
 
         <div class="two-col">
           <div>
-            <h3 style="color:var(--primary-dark);margin-bottom:0.625rem;">Why This Matters</h3>
+            <h3 class="two-col-heading">Why This Matters</h3>
             <p>Demand for LLBS support is growing, particularly in rural communities. LLBS provides preventative, community-based support that improves wellbeing and reduces pressure on health and care services.</p>
-            <p style="margin-top:0.875rem;">RNIB forecast the number of people living with a vision impairment in Greater Lincolnshire to rise from 42,000 today to 52,000 by 2032.</p>
+            <p class="mt-875">RNIB forecast the number of people living with a vision impairment in Greater Lincolnshire to rise from 42,000 today to 52,000 by 2032.</p>
           </div>
           <div>
-            <h3 style="color:var(--primary-dark);margin-bottom:0.625rem;">Our Commitment</h3>
+            <h3 class="two-col-heading">Our Commitment</h3>
             <p>LLBS will grow income responsibly through strong governance, transparent use of funds, and a balanced funding mix.</p>
             <div class="inset-box">
               <h4>Why Invest?</h4>
@@ -1253,8 +558,8 @@
         <h2 class="section-heading" id="health-heading">LLBS Contributing to County-wide Health and Wellbeing Priorities</h2>
         <p class="section-intro">The Living Well Together Strategy 2025&ndash;2030 is closely aligned with the Lincolnshire Joint Health &amp; Wellbeing Strategy (JHWS) and contributes directly to its delivery at a local, community level for people affected by vision impairment.</p>
 
-        <div class="two-col" style="align-items:start;">
-          <div style="overflow-x:auto;">
+        <div class="two-col align-start">
+          <div class="overflow-x-auto">
             <table class="jhws-table" aria-label="LLBS contributions to Lincolnshire Joint Health and Wellbeing Strategy priorities">
               <thead>
                 <tr>
@@ -1291,12 +596,12 @@
             </table>
           </div>
           <div>
-            <div style="background:var(--primary-dark);color:var(--white);padding:1.75rem;border-top:4px solid var(--accent);">
-              <h3 style="color:var(--white);margin-bottom:1rem;font-size:1rem;">Investment in LLBS</h3>
-              <ul style="list-style:none;padding:0;">
-                <li style="padding:0.4rem 0 0.4rem 1.4rem;position:relative;"><span style="position:absolute;left:0;color:var(--green);font-weight:bold;">&#10003;</span> Supports preventative, community-led outcomes</li>
-                <li style="padding:0.4rem 0 0.4rem 1.4rem;position:relative;"><span style="position:absolute;left:0;color:var(--green);font-weight:bold;">&#10003;</span> Reduces pressure on statutory health and care services</li>
-                <li style="padding:0.4rem 0 0.4rem 1.4rem;position:relative;"><span style="position:absolute;left:0;color:var(--green);font-weight:bold;">&#10003;</span> Helps deliver Lincolnshire JHWS goals locally for a population at high risk of isolation and poor wellbeing</li>
+            <div class="investment-box">
+              <h3>Investment in LLBS</h3>
+              <ul class="investment-list">
+                <li><span class="investment-list__tick" aria-hidden="true">&#10003;</span> Supports preventative, community-led outcomes</li>
+                <li><span class="investment-list__tick" aria-hidden="true">&#10003;</span> Reduces pressure on statutory health and care services</li>
+                <li><span class="investment-list__tick" aria-hidden="true">&#10003;</span> Helps deliver Lincolnshire JHWS goals locally for a population at high risk of isolation and poor wellbeing</li>
               </ul>
             </div>
           </div>
@@ -1306,13 +611,13 @@
 
     <!-- JOIN US -->
     <section id="join-us" class="cta-section" aria-labelledby="cta-heading">
-      <div class="container" style="padding-top:3rem;padding-bottom:3rem;">
-        <h2 class="section-heading" id="cta-heading" style="color:var(--white);">Join Us In Making a Lasting Difference</h2>
-        <p style="max-width:740px;margin:0 auto 1rem;font-size:1rem;color:var(--white);line-height:1.65;">Living well with vision impairment does not happen by chance &mdash; it happens when people come together with shared purpose. If you care about inclusion, independence, and community, we invite you to be part of what comes next.</p>
+      <div class="container cta-section__inner">
+        <h2 class="section-heading cta-heading" id="cta-heading">Join Us In Making a Lasting Difference</h2>
+        <p class="cta-intro">Living well with vision impairment does not happen by chance &mdash; it happens when people come together with shared purpose. If you care about inclusion, independence, and community, we invite you to be part of what comes next.</p>
 
         <div class="cta-grid">
           <div>
-            <h3 style="color:var(--white);margin-bottom:0.625rem;font-size:1rem;">How You Can Help</h3>
+            <h3 class="cta-grid-heading">How You Can Help</h3>
             <ul>
               <li>Share your voice, experience, or influence</li>
               <li>Give time, skills, ideas, or practical support</li>
@@ -1322,7 +627,7 @@
             </ul>
           </div>
           <div>
-            <h3 style="color:var(--white);margin-bottom:0.625rem;font-size:1rem;">Together, We Will</h3>
+            <h3 class="cta-grid-heading">Together, We Will</h3>
             <ul>
               <li>Strengthen independence and wellbeing</li>
               <li>Reduce isolation and inequality</li>
@@ -1332,13 +637,17 @@
           </div>
         </div>
 
-        <p style="color:var(--white);margin-bottom:1.25rem;font-size:0.9375rem;">This strategy is not something we deliver on our own. It succeeds because people choose to stand with us.</p>
+        <p class="cta-close">This strategy is not something we deliver on our own. It succeeds because people choose to stand with us.</p>
 
         <div class="cta-contact">
-          <a href="https://llbs.co.uk/donate/">Donate to LLBS</a>
-          <a href="https://www.llbs.co.uk">Visit llbs.co.uk</a>
-          <a href="tel:01507605604">Call 01507 605604</a>
-          <a href="mailto:info@llbs.co.uk">Email info@llbs.co.uk</a>
+          <a href="https://llbs.co.uk/donate/"
+             aria-label="Donate to LLBS on the LLBS donation page">Donate to LLBS</a>
+          <a href="https://www.llbs.co.uk"
+             aria-label="Visit the LLBS website at llbs.co.uk">Visit llbs.co.uk</a>
+          <a href="tel:01507605604"
+             aria-label="Call LLBS on 01507 605604">Call 01507 605604</a>
+          <a href="mailto:info@llbs.co.uk"
+             aria-label="Email LLBS at info@llbs.co.uk">Email info@llbs.co.uk</a>
         </div>
       </div>
     </section>
@@ -1347,55 +656,14 @@
 
   <footer role="contentinfo">
     <p>Lincoln &amp; Lindsey Blind Society (LLBS) &mdash; Living Well Together Strategy 2025&ndash;2030</p>
-    <p style="margin-top:0.5rem;">
-      <a href="tel:01507605604">01507 605604</a>
+    <p class="footer-contact">
+      <a href="tel:01507605604" aria-label="Call LLBS on 01507 605604">01507 605604</a>
       &nbsp;&bull;&nbsp;
-      <a href="mailto:info@llbs.co.uk">info@llbs.co.uk</a>
+      <a href="mailto:info@llbs.co.uk" aria-label="Email LLBS at info@llbs.co.uk">info@llbs.co.uk</a>
     </p>
   </footer>
 
-  <script>
-    // Mobile nav toggle
-    (function () {
-      var toggle = document.querySelector('.nav-toggle');
-      var nav    = document.querySelector('.site-nav');
-      toggle.addEventListener('click', function () {
-        var open = nav.classList.toggle('is-open');
-        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-      });
-    }());
-
-    // ARIA tabs — Arrow Left/Right, Home, End keyboard support
-    (function () {
-      var tabList = document.querySelector('[role="tablist"]');
-      var tabs    = Array.from(tabList.querySelectorAll('[role="tab"]'));
-      var panels  = tabs.map(function (t) {
-        return document.getElementById(t.getAttribute('aria-controls'));
-      });
-
-      function activate(tab) {
-        tabs.forEach(function (t, i) {
-          var sel = t === tab;
-          t.setAttribute('aria-selected', sel ? 'true' : 'false');
-          t.setAttribute('tabindex', sel ? '0' : '-1');
-          panels[i].hidden = !sel;
-        });
-        tab.focus();
-      }
-
-      tabs.forEach(function (tab, idx) {
-        tab.addEventListener('click', function () { activate(tab); });
-        tab.addEventListener('keydown', function (e) {
-          var target;
-          if      (e.key === 'ArrowRight') { target = tabs[(idx + 1) % tabs.length]; }
-          else if (e.key === 'ArrowLeft')  { target = tabs[(idx - 1 + tabs.length) % tabs.length]; }
-          else if (e.key === 'Home')       { target = tabs[0]; }
-          else if (e.key === 'End')        { target = tabs[tabs.length - 1]; }
-          if (target) { e.preventDefault(); activate(target); }
-        });
-      });
-    }());
-  </script>
+  <script src="js/strategy.js"></script>
 
 </body>
 </html>
