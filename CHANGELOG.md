@@ -1,3 +1,38 @@
+# LLBS Change Log
+
+## Team era (2026-05-22 onwards)
+
+Changes from 2026-05-22 are made by Tim Dixon's agent team. Each entry records the
+work folder reference, the change type, and a summary.
+
+### 2026-05-22 — chore(setup): repository setup build (work 005)
+
+- Split `index.html` and `brand.html` each into separate HTML, CSS, and JavaScript files (`css/strategy.css`, `js/strategy.js`, `css/brand.css`, `js/brand.js`). Behaviour-neutral: both pages render and behave identically to the pre-split versions.
+- Self-hosted the DM Sans web font in `assets/fonts/`. Removed the Google Fonts external requests from `index.html`.
+- Self-hosted the LLBS logo in `assets/`. Removed the external WordPress origin requests from both pages.
+- Removed the CORS proxy code (`CORS_PROXIES`, `loadLogoWithFallback`) from `brand.html`. The logo is now loaded same-origin, which makes the proxy unnecessary.
+- Added Content-Security-Policy and Referrer-Policy meta tags to both pages, per ADR 004.
+- Added repository configuration: `.github/CODEOWNERS`, pull request template, issue templates, and Dependabot configuration.
+- Added project `CLAUDE.md`, `.editorconfig`, and `.gitignore`.
+- Added pinned linter manifest: `package.json`, `eslint.config.js`, `.htmlvalidate.json`, `.stylelintrc.json`, `pa11y.json`.
+- Expanded `README.md` to the team standard.
+- Added `VERSION` file at `1.0.0`.
+- Fixed value-card headings to use `h4` instead of `h3`, per requirements.
+- Added `role="list"` and `role="listitem"` to the income grid, per requirements.
+- Added descriptive `aria-label` attributes to footer links.
+- Added `aria-hidden="true"` and `focusable="false"` to decorative SVG icons in `brand.html`.
+- Improved focus styles in `brand.css` to use an explicit outline (removed the `outline: none` rule).
+- Added `aria-live="polite"` and `aria-atomic="true"` to the status element in `brand.html`.
+- Added skip link and `<main>` landmark to `brand.html`.
+- Corrected header logo `alt` text in `brand.html` to "Lincoln and Lindsey Blind Society logo".
+- Removed emoji from status messages in `brand.js`; status text is now plain.
+
+## Pre-team era
+
+The entries below record changes made before the team adopted the repository.
+
+---
+
 # LLBS Strategy Page — Change Log
 
 ## 2026-05-10

@@ -1,0 +1,22 @@
+{
+  "name": "llbs",
+  "version": "1.0.0",
+  "description": "LLBS Living Well Together Strategy page and LLBS Photo Brander tool.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint:html": "html-validate index.html brand.html",
+    "lint:css": "stylelint \"css/**/*.css\"",
+    "lint:js": "eslint \"js/**/*.js\"",
+    "lint": "npm run lint:html && npm run lint:css && npm run lint:js",
+    "copy-fonts": "mkdir -p assets/fonts && cp node_modules/@fontsource/dm-sans/files/dm-sans-latin-400-normal.woff2 assets/fonts/ && cp node_modules/@fontsource/dm-sans/files/dm-sans-latin-500-normal.woff2 assets/fonts/ && cp node_modules/@fontsource/dm-sans/files/dm-sans-latin-700-normal.woff2 assets/fonts/ && cp node_modules/@fontsource/dm-sans/LICENSE assets/fonts/dm-sans-LICENSE.txt"
+  },
+  "devDependencies": {
+    "@fontsource/dm-sans": "^5.1.1",
+    "eslint": "^9.26.0",
+    "globals": "^16.0.0",
+    "html-validate": "^11.2.0",
+    "stylelint": "^16.19.1",
+    "stylelint-config-standard": "^38.0.0"
+  }
+}
