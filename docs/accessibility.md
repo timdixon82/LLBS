@@ -204,3 +204,68 @@ The following work is required before a conformance statement can be published:
 7. Fix the remaining minor and advisory items.
 
 All findings are tracked as acceptance criteria in `docs/requirements.md`.
+
+## Pre-existing AAA failures, deferred to the accessibility phase
+
+The failures below were identified by Pa11y (WCAG 2.2 AAA, CI run on `ad6bc9f`, 2026-05-23) and confirmed as pre-existing in the original codebase. They are deferred to the dedicated accessibility phase. The Pa11y CI configuration at `pa11y.json` temporarily suppresses them during the setup pull request; those ignores must be removed as each item is fixed. Cross-reference: `pa11y.json` ignore block.
+
+### index.html failures
+
+**G17 contrast failures (WCAG 2AAA.Principle1.Guideline1_4.1_4_6.G17.Fail)**
+
+Each entry states the WCAG criterion code, the Pa11y selector, and the recommended fix.
+
+- Hero call-to-action link. Selector: `#main-content > section:nth-child(1) > a`. 6.94:1 on primary blue. Recommended background: `#145f81`.
+- Section-intro paragraph on the introduction section. Selector: `#introduction > div > p:nth-child(2)`. 6.88:1, muted text. Recommended text: `#485366`.
+- Blockquote footer in the who-we-are section. Selector: `#who-we-are > div > div > div:nth-child(2) > blockquote > footer`. 2.51:1. Recommended text: `#fefeff`.
+- Section-intro paragraph on the SWOT section. Selector: `#swot > div > p`. 6.88:1. Recommended text: `#485366`.
+- SWOT Strengths heading. Selector: `#swot > div > section > div:nth-child(1) > h3`. 5.91:1. Recommended text: `#1e5e0e`.
+- SWOT Opportunities heading. Selector: `#swot > div > section > div:nth-child(3) > h3`. 6.11:1. Recommended text: `#0b5678`.
+- Vision label. Selector: `#vision-label`. 3.22:1. Recommended background: `#00293c`.
+- Vision card text (primary blue). Selector: `#vision > div > section:nth-child(3) > p:nth-child(2)`. 6.94:1. Recommended background: `#145f81`.
+- Mission card text. Selector: `#vision > div > section:nth-child(4) > p:nth-child(2)`. 1.09:1. Recommended background: `#57595a`.
+- Strategy section-intro paragraph. Selector: `#strategy > div > p:nth-child(2)`. 6.88:1. Recommended text: `#485366`.
+- Strategy table Community theme label. Selector: `#strategy > div > div:nth-child(3) > table > tbody > tr:nth-child(1) > td:nth-child(1) > span`. 6.94:1. Recommended background: `#145f81`.
+- Strategy table Transport theme label. Selector: `#strategy > div > div:nth-child(3) > table > tbody > tr:nth-child(2) > td:nth-child(1) > span`. 4.37:1. Recommended background: `#235f7a`.
+- Strategy table Wellbeing theme label. Selector: `#strategy > div > div:nth-child(3) > table > tbody > tr:nth-child(3) > td:nth-child(1) > span`. 5.03:1. Recommended background: `#1f5f7d`.
+- Strategy table Future Ready theme label. Selector: `#strategy > div > div:nth-child(3) > table > tbody > tr:nth-child(4) > td:nth-child(1) > span`. 5.74:1. Recommended background: `#1a5f7e`.
+- Timeline intro paragraph. Selector: `#strategy > div > p:nth-child(5)`. 6.88:1. Recommended text: `#485366`.
+- Timeline table header: Theme. Selector: `#strategy > div > div:nth-child(6) > table > thead > tr > th:nth-child(1)`. 6.94:1. Recommended background: `#145f81`.
+- Timeline table header: 2026. Selector: `#strategy > div > div:nth-child(6) > table > thead > tr > th:nth-child(2)`. 6.94:1. Recommended background: `#145f81`.
+- Timeline table header: 2027. Selector: `#strategy > div > div:nth-child(6) > table > thead > tr > th:nth-child(3)`. 6.94:1. Recommended background: `#145f81`.
+- Timeline table header: 2028. Selector: `#strategy > div > div:nth-child(6) > table > thead > tr > th:nth-child(4)`. 6.94:1. Recommended background: `#145f81`.
+- Timeline table header: 2029. Selector: `#strategy > div > div:nth-child(6) > table > thead > tr > th:nth-child(5)`. 6.94:1. Recommended background: `#145f81`.
+- Timeline table header: 2030. Selector: `#strategy > div > div:nth-child(6) > table > thead > tr > th:nth-child(6)`. 6.94:1. Recommended background: `#145f81`.
+- Community panel intended-outcome label. Selector: `#panel-community > div:nth-child(1) > p:nth-child(1)`. 6.23:1. Recommended text: `#424d60`.
+- Community panel blockquote footer. Selector: `#panel-community > blockquote > footer`. 2.51:1. Recommended text: `#fefeff`.
+- Community panel Why heading. Selector: `#panel-community > div:nth-child(3) > div:nth-child(1) > h4`. 6.34:1. Recommended text: `#000e15`.
+- Community panel Intended Direction heading. Selector: `#panel-community > div:nth-child(3) > div:nth-child(2) > h4`. 6.34:1. Recommended text: `#000e15`.
+- Community panel Reason heading. Selector: `#panel-community > div:nth-child(3) > div:nth-child(3) > h4`. 6.34:1. Recommended text: `#000e15`.
+- Community panel Routes to Outcome heading. Selector: `#panel-community > div:nth-child(3) > div:nth-child(4) > h4`. 6.34:1. Recommended text: `#000e15`.
+- Income card label (mid, primary blue). Selector: `#income > div > ul > li:nth-child(2) > p`. 6.94:1. Recommended background: `#145f81`.
+- Income card label (teal). Selector: `#income > div > ul > li:nth-child(3) > p`. 5.03:1. Recommended background: `#1f5f7d`.
+- Active Community tab button. Selector: `#tab-community`. 6.94:1 on primary blue. Recommended text: `#145f81`.
+
+**G18 contrast failures (WCAG2AAA.Principle1.Guideline1_4.1_4_6.G18.Fail)**
+
+G18 applies to large text (18.66px bold or larger), requiring 4.5:1. Both failures are on income-card numeric spans (large bold text).
+
+- Income card number: +4%. Selector: `#income > div > ul > li:nth-child(2) > span`. 3.22:1 on mid-teal. Recommended background: `#00496b`.
+- Income card number: ~13%. Selector: `#income > div > ul > li:nth-child(3) > span`. 2.33:1 on dark-teal. Recommended background: `#094967`.
+
+**G141 heading-structure failure (WCAG2AAA.Principle1.Guideline1_3.1_3_1_AAA.G141)**
+
+- Community panel h4 headings are flagged as out of order by Pa11y. Selector: `#panel-community > div:nth-child(3) > div:nth-child(1) > h4` (and the three sibling h4 elements). Pa11y interprets the h4 elements as skipping a level; within the tab-panel context the enclosing section functions as the implicit h3. This is a Pa11y false positive on the tab-panel structure, but it is recorded here for completeness and must be assessed during the accessibility phase.
+
+### brand.html failures
+
+**G17 contrast failures on brand.html (WCAG2AAA.Principle1.Guideline1_4.1_4_6.G17.Fail)**
+
+These three failures were identified by Carol's local Pa11y run (2026-05-23). The CI run on `ad6bc9f` did not reach the brand.html step because index.html caused an earlier exit.
+
+- Header paragraph muted text. 4.98:1 on page background `#f0f4f8`. Recommended: darken text to at least `#4a5a70`.
+- Upload-area span text (two instances). 5.50:1 on white. Same recommendation.
+
+### Non-text contrast gap (WCAG 1.4.11, Level AA)
+
+Input border colour `#cbd5e1` achieves approximately 1.49:1 against the white form background, below the 3:1 non-text contrast threshold (WCAG 1.4.11). This is a pre-existing issue from the original codebase. Pa11y (HTMLCS engine) does not directly flag non-text contrast, so this item does not appear in the automated run but is recorded here for the accessibility phase. Recommended fix: change input border to `#768da5` or darker to achieve at least 3:1.
