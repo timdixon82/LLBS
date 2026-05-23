@@ -55,7 +55,7 @@
   --mid-grey: #ccd2d8;
   --light-bg: #e7eaed;
   --lighter-bg: #f3f5f6;
-  --white: #ffffff;
+  --white: #fff;
   --text: #1a1a1a;
   --text-muted: #4a5568;
 
@@ -113,7 +113,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 1px 4px rgb(0 0 0 / 10%);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.1);
 }
 
 .site-header__inner {
@@ -142,7 +142,7 @@ body {
 .nav-toggle {
   display: none;
   background: none;
-  border: 2px solid rgb(0 0 0 / 25%);
+  border: 2px solid rgb(0 0 0 / 0.25);
   color: var(--text);
   padding: 0.35rem 0.8rem;
   cursor: pointer;
@@ -171,11 +171,11 @@ body {
 
 .site-nav a:hover,
 .site-nav a:focus {
-  background: rgb(21 96 130 / 8%);
+  background: rgb(21 96 130 / 0.08);
   color: var(--primary);
 }
 
-@media (max-width: 820px) {
+@media (width <= 820px) {
   .nav-toggle {
     display: block;
   }
@@ -246,7 +246,7 @@ section:nth-of-type(even):not(.cta-section) {
   align-items: start;
 }
 
-@media (max-width: 680px) {
+@media (width <= 680px) {
   .two-col {
     grid-template-columns: 1fr;
   }
@@ -375,7 +375,7 @@ blockquote footer {
   border: 1px solid var(--mid-grey);
 }
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .swot-grid {
     grid-template-columns: 1fr;
   }
@@ -710,7 +710,6 @@ blockquote footer {
   background: var(--white);
   font-weight: bold;
   border-color: var(--mid-grey);
-  border-bottom-color: var(--white);
   color: var(--primary);
   border-bottom: 3px solid var(--accent);
 }
@@ -945,7 +944,7 @@ blockquote footer {
   text-align: left;
 }
 
-@media (max-width: 680px) {
+@media (width <= 680px) {
   .cta-grid {
     grid-template-columns: 1fr;
   }

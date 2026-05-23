@@ -14,7 +14,7 @@ export default [
       globals: globals.browser,
     },
     rules: {
-      'no-unused-vars': ['error'],
+      'no-unused-vars': ['error', { caughtErrorsIgnorePattern: '^_' }],
       'no-undef': 'error',
       'eqeqeq': 'error',
       'no-eval': 'error',

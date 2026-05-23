@@ -30,7 +30,7 @@
 
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
-  <header class="site-header" role="banner">
+  <header class="site-header">
     <div class="site-header__inner">
       <a class="site-header__logo-link" href="https://www.llbs.co.uk"
          aria-label="Lincoln and Lindsey Blind Society &#x2014; visit website">
@@ -81,24 +81,25 @@
         <h2 class="section-heading" id="who-heading">Who We Are Here For</h2>
         <p class="section-intro">LLBS supports people with vision impairments to live independently and with dignity across Greater Lincolnshire.</p>
 
-        <div class="stats-grid" role="list" aria-label="Key statistics">
-          <div class="stat-card" role="listitem">
+        <h3 class="visually-hidden">Key statistics</h3>
+        <ul class="stats-grid">
+          <li class="stat-card">
             <span class="stat-card__number">1,600+</span>
             <p class="stat-card__label">People supported</p>
-          </div>
-          <div class="stat-card" role="listitem">
+          </li>
+          <li class="stat-card">
             <span class="stat-card__number">16,000</span>
             <p class="stat-card__label">Square miles of largely rural communities served</p>
-          </div>
-          <div class="stat-card" role="listitem">
+          </li>
+          <li class="stat-card">
             <span class="stat-card__number">1 in 26</span>
             <p class="stat-card__label">Of the 42,000 people living with vision impairment in Greater Lincolnshire</p>
-          </div>
-          <div class="stat-card" role="listitem">
+          </li>
+          <li class="stat-card">
             <span class="stat-card__number">52,000</span>
             <p class="stat-card__label">Projected people with vision impairment in Greater Lincolnshire by 2032 (Royal National Institute of Blind People (RNIB))</p>
-          </div>
-        </div>
+          </li>
+        </ul>
 
         <div class="two-col mt-2">
           <div>
@@ -137,7 +138,7 @@
         <h2 class="section-heading" id="swot-heading">Summary Analysis 2025</h2>
         <p class="section-intro">An honest assessment of where we are &mdash; building on strengths and addressing challenges head-on.</p>
 
-        <div class="swot-grid" role="region" aria-label="SWOT analysis: Strengths, Weaknesses, Opportunities, Threats">
+        <section class="swot-grid" aria-label="SWOT analysis: Strengths, Weaknesses, Opportunities, Threats">
           <div class="swot-quadrant swot-quadrant--s">
             <h3>Strengths</h3>
             <ul>
@@ -178,7 +179,7 @@
               <li>Accessibility and transport barriers limit reach, especially in rural areas</li>
             </ul>
           </div>
-        </div>
+        </section>
       </div>
     </section>
 
@@ -188,39 +189,39 @@
         <h2 class="section-heading" id="vision-heading">Our Vision, Mission, and Values</h2>
         <p class="section-intro">These principles guide everything we do.</p>
 
-        <div class="vmv-card" aria-labelledby="vision-label">
+        <section class="vmv-card" aria-labelledby="vision-label">
           <p class="vmv-card__label" id="vision-label">Vision</p>
           <p class="vmv-card__text">All visually impaired people in Greater Lincolnshire feel confident, connected, and supported to live life their way.</p>
-        </div>
+        </section>
 
-        <div class="vmv-card vmv-card--dark" aria-labelledby="mission-label">
+        <section class="vmv-card vmv-card--dark" aria-labelledby="mission-label">
           <p class="vmv-card__label" id="mission-label">Mission</p>
           <p class="vmv-card__text">We provide personal, practical, and lifelong support for people affected by visual impairment across Greater Lincolnshire. We help people stay independent, overcome isolation, and belong to a caring local community.</p>
-        </div>
+        </section>
 
         <h3 class="values-heading">Our Values</h3>
-        <div class="values-grid" role="list">
-          <div class="value-card" role="listitem">
+        <ul class="values-grid">
+          <li class="value-card">
             <h4>Personal</h4>
             <p>We know people by name and treat everyone with warmth, respect and understanding &mdash; no matter their age, background or experiences of sight loss.</p>
-          </div>
-          <div class="value-card" role="listitem">
+          </li>
+          <li class="value-card">
             <h4>Community</h4>
             <p>We are rooted in Greater Lincolnshire&rsquo;s communities and reach those who are rural or isolated.</p>
-          </div>
-          <div class="value-card" role="listitem">
+          </li>
+          <li class="value-card">
             <h4>Reliable</h4>
             <p>We show up, for as long as needed, and keep our promises &mdash; we are open, honest and fair.</p>
-          </div>
-          <div class="value-card" role="listitem">
+          </li>
+          <li class="value-card">
             <h4>Empowering</h4>
             <p>We build confidence, not dependency. We focus on what works and what makes daily life better.</p>
-          </div>
-          <div class="value-card" role="listitem">
+          </li>
+          <li class="value-card">
             <h4>Collaborative</h4>
             <p>We work with families, volunteers, and partners to deliver our mission.</p>
-          </div>
-        </div>
+          </li>
+        </ul>
       </div>
     </section>
 
@@ -337,16 +338,16 @@
         <div class="tabs">
           <ul class="tab-list" role="tablist" aria-label="Strategy themes">
             <li role="presentation">
-              <button class="tab-button" id="tab-community" role="tab" aria-selected="true" aria-controls="panel-community">Community</button>
+              <button class="tab-button" id="tab-community" role="tab" type="button" aria-selected="true" aria-controls="panel-community">Community</button>
             </li>
             <li role="presentation">
-              <button class="tab-button" id="tab-transport" role="tab" aria-selected="false" aria-controls="panel-transport" tabindex="-1">Transport</button>
+              <button class="tab-button" id="tab-transport" role="tab" type="button" aria-selected="false" aria-controls="panel-transport" tabindex="-1">Transport</button>
             </li>
             <li role="presentation">
-              <button class="tab-button" id="tab-wellbeing" role="tab" aria-selected="false" aria-controls="panel-wellbeing" tabindex="-1">Wellbeing</button>
+              <button class="tab-button" id="tab-wellbeing" role="tab" type="button" aria-selected="false" aria-controls="panel-wellbeing" tabindex="-1">Wellbeing</button>
             </li>
             <li role="presentation">
-              <button class="tab-button" id="tab-future" role="tab" aria-selected="false" aria-controls="panel-future" tabindex="-1">Future Ready</button>
+              <button class="tab-button" id="tab-future" role="tab" type="button" aria-selected="false" aria-controls="panel-future" tabindex="-1">Future Ready</button>
             </li>
           </ul>
 
@@ -519,20 +520,21 @@
       <div class="container">
         <h2 class="section-heading" id="income-heading">Income &amp; Sustainability</h2>
 
-        <div class="income-grid" role="list" aria-label="Income growth targets">
-          <div class="income-card" role="listitem">
+        <h3 class="visually-hidden">Income growth targets</h3>
+        <ul class="income-grid">
+          <li class="income-card">
             <span class="income-card__number">9.3%</span>
             <p class="income-card__label">Annual income growth needed to maintain current services</p>
-          </div>
-          <div class="income-card income-card--mid" role="listitem">
+          </li>
+          <li class="income-card income-card--mid">
             <span class="income-card__number">+4%</span>
             <p class="income-card__label">Further growth needed to deliver this strategy</p>
-          </div>
-          <div class="income-card income-card--teal" role="listitem">
+          </li>
+          <li class="income-card income-card--teal">
             <span class="income-card__number">~13%</span>
             <p class="income-card__label">Total annual income growth target</p>
-          </div>
-        </div>
+          </li>
+        </ul>
 
         <div class="two-col">
           <div>
@@ -645,7 +647,7 @@
           <a href="https://www.llbs.co.uk"
              aria-label="Visit the LLBS website at llbs.co.uk">Visit llbs.co.uk</a>
           <a href="tel:01507605604"
-             aria-label="Call LLBS on 01507 605604">Call 01507 605604</a>
+             aria-label="Call LLBS on 01507&nbsp;605604">Call&nbsp;01507&nbsp;605604</a>
           <a href="mailto:info@llbs.co.uk"
              aria-label="Email LLBS at info@llbs.co.uk">Email info@llbs.co.uk</a>
         </div>
@@ -654,10 +656,10 @@
 
   </main>
 
-  <footer role="contentinfo">
+  <footer>
     <p>Lincoln &amp; Lindsey Blind Society (LLBS) &mdash; Living Well Together Strategy 2025&ndash;2030</p>
     <p class="footer-contact">
-      <a href="tel:01507605604" aria-label="Call LLBS on 01507 605604">01507 605604</a>
+      <a href="tel:01507605604" aria-label="Call LLBS on 01507&nbsp;605604">01507&nbsp;605604</a>
       &nbsp;&bull;&nbsp;
       <a href="mailto:info@llbs.co.uk" aria-label="Email LLBS at info@llbs.co.uk">info@llbs.co.uk</a>
     </p>

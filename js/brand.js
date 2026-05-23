@@ -44,7 +44,7 @@ var shareBtn     = document.getElementById('shareBtn');
 var downloadBtn  = document.getElementById('downloadBtn');
 var resetBtn     = document.getElementById('resetBtn');
 var shareSpinner = document.getElementById('shareSpinner');
-var dlFallback   = document.getElementById('downloadFallback');
+var dlFallback   = document.getElementById('download-fallback');
 
 var formatSelect = document.getElementById('formatSelect');
 var zoomSlider   = document.getElementById('zoomSlider');
@@ -587,7 +587,7 @@ canvas.addEventListener('pointermove', function (e) {
 function endDrag(e) {
   if (!dragging) { return; }
   dragging = false;
-  try { canvas.releasePointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+  try { canvas.releasePointerCapture(e.pointerId); } catch (_err) { /* ignore */ }
 }
 canvas.addEventListener('pointerup',     endDrag);
 canvas.addEventListener('pointercancel', endDrag);
@@ -670,6 +670,14 @@ resetBtn.addEventListener('click', function () {
   updateContrastBadge();
   setStatus('');
 });
+
+// ─────────────────────────────────────────────
+// Controls form: prevent default submission (all controls are JS-driven)
+// ─────────────────────────────────────────────
+var controlsForm = document.querySelector('.controls');
+if (controlsForm) {
+  controlsForm.addEventListener('submit', function (e) { e.preventDefault(); });
+}
 
 // ─────────────────────────────────────────────
 // Drag and drop upload
