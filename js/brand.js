@@ -13,10 +13,10 @@ var LOGO_SRC = 'assets/llbs-logo-brander.png';
 
 // Fixed social-media output sizes (pixels)
 var FORMATS = {
-  square:    { w: 1080, h: 1080, label: 'Square' },
-  portrait:  { w: 1080, h: 1920, label: 'Portrait' },
-  landscape: { w: 1600, h: 900,  label: 'Landscape' },
-  facebook:  { w: 1200, h: 630,  label: 'Facebook' }
+  square:    { w: 1080, h: 1080, label: 'Square',    ariaLabel: 'Branded Instagram and Facebook square image preview' },
+  portrait:  { w: 1080, h: 1920, label: 'Portrait',  ariaLabel: 'Branded Story, Reel, and TikTok portrait image preview' },
+  landscape: { w: 1600, h: 900,  label: 'Landscape', ariaLabel: 'Branded Twitter and X landscape image preview' },
+  facebook:  { w: 1200, h: 630,  label: 'Facebook',  ariaLabel: 'Branded Facebook post image preview' }
 };
 
 var BRAND_HEIGHT_RATIO = 0.10;   // branding strip = 10% of canvas height
@@ -140,7 +140,7 @@ function applyFormat(key) {
   currentFormat = FORMATS[key];
   canvas.width  = currentFormat.w;
   canvas.height = currentFormat.h;
-  canvas.setAttribute('aria-label', 'Branded image preview, ' + currentFormat.label + ' format');
+  canvas.setAttribute('aria-label', currentFormat.ariaLabel);
   sizeCanvasForDisplay();
 
   if (userImage) {
