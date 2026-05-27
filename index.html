@@ -16,7 +16,7 @@
     and logos are self-hosted (ADR 005).
   -->
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+        content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https://timdixon82.goatcounter.com; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; connect-src 'self' https://timdixon82.goatcounter.com">
   <!--
     Referrer-Policy: sends the origin only (not the full URL) on cross-origin
     requests, limiting what third-party sites learn about the visitor's navigation.
@@ -666,6 +666,9 @@
   </footer>
 
   <script src="js/strategy.js"></script>
+
+  <script data-goatcounter="https://timdixon82.goatcounter.com/count"
+          async src="./assets/analytics/count.js"></script>
 
 </body>
 </html>
