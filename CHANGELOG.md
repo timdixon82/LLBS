@@ -5,6 +5,13 @@
 Changes from 2026-05-22 are made by Tim Dixon's agent team. Each entry records the
 work folder reference, the change type, and a summary.
 
+## [1.1.0](https://github.com/timdixon82/LLBS/compare/v1.0.0...v1.1.0) (2026-05-27)
+
+
+### Features
+
+* **analytics:** add self-hosted GoatCounter analytics ([#7](https://github.com/timdixon82/LLBS/issues/7)) ([3fed230](https://github.com/timdixon82/LLBS/commit/3fed230ba67447fa1f0566951faf5e005e09928c))
+
 ### 2026-05-22 — chore(setup): repository setup build (work 005)
 
 - Split `index.html` and `brand.html` each into separate HTML, CSS, and JavaScript files (`css/strategy.css`, `js/strategy.js`, `css/brand.css`, `js/brand.js`). Behaviour-neutral: both pages render and behave identically to the pre-split versions.
