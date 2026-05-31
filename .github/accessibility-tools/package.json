@@ -1,0 +1,10 @@
+{
+  "name": "llbs-accessibility-tools",
+  "private": true,
+  "description": "Accessibility testing tools for the LLBS project. Managed here so Dependabot can track and propose version bumps automatically. These are installed by the accessibility workflow; they are not a runtime dependency of the site.",
+  "dependencies": {
+    "@axe-core/cli": "4.11.3",
+    "pa11y": "9.1.1",
+    "wait-on": "8.0.1"
+  }
+}
