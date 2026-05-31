@@ -17,3 +17,11 @@ updates:
     groups:
       javascript:
         patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /.github/accessibility-tools
+    schedule:
+      interval: weekly
+    groups:
+      accessibility-tools:
+        patterns: ["*"]

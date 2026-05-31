@@ -1,24 +1,25 @@
 # Accessibility checks at WCAG 2.2 AAA using Pa11y and axe-core.
 #
-# Runs on every pull request. Serves LLBS locally on port 8080 with
-# Python's built-in HTTP server, installs Pa11y and axe-core CLI plus
-# wait-on and browser-driver-manager, and runs both tools against
-# index.html (the public Strategy page) and brand.html (the LLBS Photo
-# Brander).
+# Runs on every pull request. Serves the LLBS site locally on port 8080
+# with Python's built-in HTTP server, then runs Pa11y and axe-core against
+# both index.html (the public Strategy page) and brand.html (the LLBS
+# Photo Brander).
 #
-# Two well-known GitHub-Actions runner issues are handled here:
+# Tools are managed in .github/accessibility-tools/package.json so
+# Dependabot can track and propose version bumps automatically.
 #
-#   1. Pa11y, via Puppeteer, needs --no-sandbox because the runner
-#      disables unprivileged user namespaces. Pa11y picks up the
-#      pa11y.json file in the repository root, whose
-#      chromeLaunchConfig.args sets --no-sandbox and
-#      --disable-setuid-sandbox.
+# Two well-known GitHub Actions runner issues are handled here:
 #
-#   2. The axe-core CLI uses ChromeDriver via Selenium. The runner has
-#      a specific Chrome version; we install a matching ChromeDriver
-#      via the Chrome for Testing CDN before running axe. The
-#      --chrome-options=no-sandbox argument passes through to the
-#      Chrome process the driver launches.
+#   1. Pa11y, via Puppeteer, needs --no-sandbox. Pa11y picks up pa11y.json
+#      from the repository root, which sets chromeLaunchConfig.args. At CI
+#      time we derive pa11y.ci.json from it via jq, overriding
+#      chromeLaunchConfig.executablePath to the runner's system Chrome, so
+#      Pa11y does not hunt for a browser version it never downloaded.
+#
+#   2. The axe-core CLI uses ChromeDriver via Selenium. We detect the
+#      runner Chrome version and download a matching ChromeDriver from the
+#      Chrome for Testing CDN. The path is stored in CHROMEDRIVER_PATH and
+#      passed to axe via --chromedriver-path.
 #
 # Security note: no untrusted GitHub context variables are used in any
 # run step. All run commands are fixed strings.
@@ -44,12 +45,17 @@ jobs:
           node-version: lts/*
 
       - name: Install accessibility tools
-        run: npm install -g pa11y@9.1.1 @axe-core/cli@4.11.3 wait-on@8.0.1
+        # Tools are managed in .github/accessibility-tools/package.json so
+        # Dependabot can track and propose version bumps automatically.
+        run: npm ci
+        working-directory: .github/accessibility-tools
+
+      - name: Add accessibility tools to PATH
+        run: echo "$GITHUB_WORKSPACE/.github/accessibility-tools/node_modules/.bin" >> "$GITHUB_PATH"
 
       - name: Install matching ChromeDriver for axe-core
         run: |
-          # Detect the full Chrome version from the binary ChromeDriver uses.
-          # Probe in the same order ChromeDriver checks binaries.
+          # Detect the full Chrome version from the binary ChromeDriver probes.
           CHROME_FULL=""
           for chrome_bin in /opt/google/chrome/chrome /opt/google/chrome/google-chrome \
               /usr/bin/google-chrome /usr/bin/google-chrome-stable; do
@@ -62,6 +68,7 @@ jobs:
             echo "WARNING: Could not detect Chrome version; axe will use system ChromeDriver." && exit 0
           fi
           echo "Detected Chrome ${CHROME_FULL}."
+          # Download the exact matching ChromeDriver from the Chrome for Testing CDN.
           mkdir -p "$HOME/chromedriver-matching"
           if curl -sfL \
               "https://storage.googleapis.com/chrome-for-testing-public/${CHROME_FULL}/linux64/chromedriver-linux64.zip" \
@@ -84,7 +91,7 @@ jobs:
         run: python3 -m http.server 8080 &
 
       - name: Wait for the server to be ready
-        run: npx wait-on http://localhost:8080 --timeout 15000
+        run: wait-on http://localhost:8080 --timeout 15000
 
       - name: Pa11y on index.html at WCAG 2.2 AAA
         run: pa11y --standard WCAG2AAA --config pa11y.ci.json http://localhost:8080/index.html
