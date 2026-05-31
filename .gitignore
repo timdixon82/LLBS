@@ -7,13 +7,42 @@ node_modules/
 npm-debug.log*
 .npm
 
+# Logs
+*.log
+
 # macOS finder artefacts
 .DS_Store
 
+# Windows finder artefacts
+Thumbs.db
+
+# iCloud Drive sync-conflict artefacts. When the same file is edited in two
+# places, iCloud creates siblings with numeric suffixes: `name 2.md`, etc.
+# These are sync artefacts and are never intentional commits.
+* 2.*
+* 3.*
+* 4.*
+* 5.*
+
 # Editor artefacts
 .vscode/
+.idea/
 *.swp
 *.swo
 
-# Generated at CI time by the accessibility workflow; must not be committed.
+# Secrets and environment files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# CI-only Pa11y config, derived from pa11y.json in the accessibility workflow.
+# Generated at CI time; never committed.
 pa11y.ci.json
+
+# Claude Code local settings — local to this machine, not shared.
+.claude/settings.local.json
+
+# Session transcripts written by the session hook — local audit trail only.
+.claude/transcripts/

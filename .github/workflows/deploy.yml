@@ -1,0 +1,88 @@
+# Deploy the LLBS static site to GitHub Pages.
+#
+# Runs on every push to main and on manual dispatch.
+#
+# LLBS has no build step (ADR 003), so this workflow uses the unbundled
+# variant: an "Assemble site" step copies only the runtime files into _site,
+# then uploads that directory to Pages. Config files, docs, node_modules,
+# and linter config are excluded from what the public site serves.
+#
+# One-time activation (per repository): GitHub > Settings > Pages > Build
+# and deployment > Source must be set to "GitHub Actions" (not "Deploy from
+# a branch") for this workflow to control deployment.
+#
+# Action SHAs are pinned to full 40-character commit SHAs verified on
+# 2026-05-23. Never shorten these SHAs; GitHub no longer resolves shortened
+# SHAs and the deploy will fail silently. Update SHAs via Dependabot.
+#
+# Security note: no untrusted GitHub context variables are used in any
+# run step.
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one deploy at a time. An in-progress deploy is cancelled if a new
+# push arrives before it completes.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Assemble site
+        run: |
+          mkdir _site
+          rsync -a \
+            --exclude='_site' \
+            --exclude='node_modules' \
+            --exclude='.github' \
+            --exclude='docs' \
+            --exclude='package.json' \
+            --exclude='package-lock.json' \
+            --exclude='eslint.config.js' \
+            --exclude='.htmlvalidate.json' \
+            --exclude='.stylelintrc.json' \
+            --exclude='CHANGELOG.md' \
+            --exclude='VERSION' \
+            --exclude='release-please-config.json' \
+            --exclude='.release-please-manifest.json' \
+            --exclude='todo.md' \
+            --exclude='pa11y.json' \
+            --exclude='README.md' \
+            --exclude='.editorconfig' \
+            --exclude='.gitignore' \
+            --exclude='.claude' \
+            . _site/
+
+      - name: Configure Pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d  # v6.0.0
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128  # v5.0.0

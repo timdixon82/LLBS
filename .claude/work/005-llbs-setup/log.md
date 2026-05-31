@@ -168,3 +168,6 @@ CI after the push: Pa11y at WCAG 2.2 AAA **passes**. All other checks pass; the 
 ## [2026-05-28] bypass | Screen-reader evidence gate bypassed; work folder closed
 
 Tim instructed the team to bypass the VoiceOver and JAWS screen-reader passes. The screen-reader evidence gate is already suspended globally per CLAUDE.md ("not required for release at this time"). LLBS PR 4 was merged on 2026-05-23 and the project reached v1.0.0. The GoatCounter analytics PR 7 then brought it to v1.1.0 (merged 2026-05-27). The VoiceOver/JAWS task in TASKS.md has been ticked as bypassed. Work folder 005 is now closed.
+- [2026-05-30 23:01:09] subagent completed
+- [2026-05-30 23:35:34] subagent completed
+- [2026-05-31 10:51:04] subagent completed
