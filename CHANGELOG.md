@@ -5,6 +5,20 @@
 Changes from 2026-05-22 are made by Tim Dixon's agent team. Each entry records the
 work folder reference, the change type, and a summary.
 
+## [1.2.0](https://github.com/timdixon82/LLBS/compare/v1.1.0...v1.2.0) (2026-05-31)
+
+
+### Features
+
+* **scripts:** add next-q.sh for session Q-number display ([feae8cb](https://github.com/timdixon82/LLBS/commit/feae8cb3129980f7244f4fcf8fc2f1f5cb2c313c))
+* **scripts:** add next-q.sh so session-start displays the next Q-number ([96aa4f6](https://github.com/timdixon82/LLBS/commit/96aa4f6daab98be657cbc6222eb853068c92491a))
+
+
+### Bug Fixes
+
+* **security:** patch pre-tool-use.sh — six safety-hook vulnerabilities ([a502163](https://github.com/timdixon82/LLBS/commit/a502163819f5b6cef121cedcedd2ab75b68a52d2))
+* **security:** patch pre-tool-use.sh — six safety-hook vulnerabilities ([72ae05c](https://github.com/timdixon82/LLBS/commit/72ae05c912c71d0179d0735a38ac18e2abe38349))
+
 ## [1.1.0](https://github.com/timdixon82/LLBS/compare/v1.0.0...v1.1.0) (2026-05-27)
 
 
