@@ -1,5 +1,7 @@
 # Exception ACC-LLBS-002: Canvas photo-positioning is pointer-only
 
+**Status: CLOSED** — Arrow-key nudging was implemented in `feat/canvas-keyboard-nav` (2026-06-05). WCAG 2.1.1 Keyboard (Level A) and 2.1.3 Keyboard No Exception (Level AAA) are now satisfied for photo and text-overlay repositioning. This exception is retired.
+
 ## Summary
 
 The LLBS Photo Brander (`brand.html`) allows users to reposition their uploaded photo on the canvas by dragging with a pointer device. There is no keyboard equivalent for fine dragging. This exception documents and approves that gap, on the basis that coarse positioning is achievable by keyboard via the existing controls, and that implementing full keyboard dragging would require significant additional JavaScript.
@@ -9,11 +11,14 @@ The LLBS Photo Brander (`brand.html`) allows users to reposition their uploaded 
 | Field | Value |
 | --- | --- |
 | Exception identifier | ACC-LLBS-002 |
+| Status | **Closed** — fixed in `feat/canvas-keyboard-nav`, 2026-06-05 |
 | Category | Accessibility: WCAG 2.2 criterion 2.1.1 Keyboard, Level A; 2.1.3 Keyboard (No Exception), Level AAA |
 | Date raised | 2026-05-21 |
 | Raised by | Carol (tester), during WCAG 2.2 AAA baseline audit (finding 2.9) |
 | Approved by | Tim Dixon |
 | Approval date | 2026-05-21 (answer 12 in the consolidated question batch) |
+| Closed date | 2026-06-05 |
+| Closed by | Sean (implementation), feat/canvas-keyboard-nav |
 | Review date | 2027-05-21 |
 
 ## What this exception covers
