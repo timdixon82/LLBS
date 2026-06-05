@@ -1,21 +1,26 @@
 {
   "_comment": [
-    "Temporary ignore list for the setup pull request (chore/project-setup).",
-    "These codes cover pre-existing AAA failures in the original LLBS codebase.",
-    "They are documented in docs/accessibility.md under the section",
-    "'Pre-existing AAA failures, deferred to the accessibility phase', and tracked",
-    "in todo.md. The accessibility phase pull request MUST remove each ignore as",
-    "the corresponding finding is fixed. Do not add new codes here without a",
-    "matching entry in docs/accessibility.md and todo.md.",
-    "The Level A canvas accessible-name code is intentionally NOT listed here,",
-    "because that finding was resolved in the setup pull request."
+    "Pa11y configuration for WCAG 2.2 AAA testing.",
+    "The setup-phase blanket ignores for G17, G18, and G141 have been removed as",
+    "of the a11y/remediation pull request — all items from todo.md are now fixed.",
+    "",
+    "Documented exceptions that remain after remediation:",
+    "  ACC-LLBS-001: #156082 on white = 6.94:1, marginally below 7:1 AAA.",
+    "                Approved by Tim; see docs/exceptions/ACC-LLBS-001-brand-blue-contrast.md.",
+    "                Affects: nav link hover state, stat-card border-top (decorative),",
+    "                timeline-bar (decorative). Pa11y may still flag these; Carol to",
+    "                confirm in her test pass.",
+    "",
+    "  Mission card (vmv-card--dark): Pa11y reports 1.09:1 on .vmv-card__text but",
+    "                the actual computed colour is white (#fff) on #042433 (high",
+    "                contrast). Believed to be a Pa11y false positive caused by CSS",
+    "                custom-property inheritance not being resolved correctly. Carol",
+    "                to confirm with axe-core, which resolves custom properties more",
+    "                reliably.",
+    "",
+    "  ACC-LLBS-002: Canvas keyboard gap — Phase 2, out of scope here."
   ],
   "chromeLaunchConfig": {
     "args": ["--no-sandbox", "--disable-setuid-sandbox"]
-  },
-  "ignore": [
-    "WCAG2AAA.Principle1.Guideline1_4.1_4_6.G17.Fail",
-    "WCAG2AAA.Principle1.Guideline1_4.1_4_6.G18.Fail",
-    "WCAG2AAA.Principle1.Guideline1_3.1_3_1_AAA.G141"
-  ]
+  }
 }
