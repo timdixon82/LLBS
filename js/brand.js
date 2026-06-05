@@ -661,6 +661,11 @@ canvas.addEventListener('keydown', function (e) {
 
     drawComposite();
   }
+
+  if (e.key === 't' || e.key === 'T') {
+    keyboardMoveTarget = (keyboardMoveTarget === 'photo') ? 'text' : 'photo';
+    updateKeyboardModeLabel();
+  }
 });
 
 // ─────────────────────────────────────────────
