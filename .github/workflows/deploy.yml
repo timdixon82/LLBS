@@ -1,19 +1,22 @@
 # Deploy the LLBS static site to GitHub Pages.
-#
 # Runs on every push to main and on manual dispatch.
 #
-# LLBS has no build step (ADR 003), so this workflow uses the unbundled
-# variant: an "Assemble site" step copies only the runtime files into _site,
-# then uploads that directory to Pages. Config files, docs, node_modules,
-# and linter config are excluded from what the public site serves.
+# THIS IS THE TEAM STANDARD for deploying a static site to GitHub Pages.
+# See docs/patterns/github-pages-deploy.md for the full standard.
 #
-# One-time activation (per repository): GitHub > Settings > Pages > Build
-# and deployment > Source must be set to "GitHub Actions" (not "Deploy from
-# a branch") for this workflow to control deployment.
+# LLBS uses the UNBUNDLED variant: no build step (ADR 003). The "Assemble
+# site" step copies only the runtime files into _site, then uploads that
+# directory to Pages. Config files, docs, node_modules, and linter config
+# are excluded from what the public site serves.
 #
-# Action SHAs are pinned to full 40-character commit SHAs verified on
-# 2026-05-23. Never shorten these SHAs; GitHub no longer resolves shortened
-# SHAs and the deploy will fail silently. Update SHAs via Dependabot.
+# Activation (one-time, per repo): GitHub > Settings > Pages > Build and
+# deployment > Source > "GitHub Actions" (NOT "Deploy from a branch").
+# Equivalently, set the Pages build_type to "workflow" via the API.
+#
+# Action SHAs are pinned to FULL 40-character commit SHAs. Never use a
+# shortened SHA: GitHub no longer resolves them and the deploy will fail
+# (this caused a silent stale-deploy on the Image Colour Contrast Checker).
+# The version tag is in the trailing comment; update SHAs via Dependabot.
 #
 # Security note: no untrusted GitHub context variables are used in any
 # run step.
@@ -30,8 +33,7 @@ permissions:
   pages: write
   id-token: write
 
-# Only one deploy at a time. An in-progress deploy is cancelled if a new
-# push arrives before it completes.
+# Only one deploy at a time. In-progress deploy is cancelled if a new push arrives.
 concurrency:
   group: pages
   cancel-in-progress: true
@@ -51,6 +53,7 @@ jobs:
             --exclude='node_modules' \
             --exclude='.github' \
             --exclude='docs' \
+            --exclude='scripts' \
             --exclude='package.json' \
             --exclude='package-lock.json' \
             --exclude='eslint.config.js' \

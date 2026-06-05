@@ -7,10 +7,12 @@
 # (.htmlvalidate.json, .stylelintrc.json, eslint.config.js) live in the
 # repository root.
 #
+# Action versions are pinned to commit SHAs verified on 2026-05-23.
+# The version tag is shown in the trailing comment. To update an action,
+# change the SHA and the comment together.
+#
 # Security note: no untrusted GitHub context variables are interpolated
 # into any run step. Every run command is a fixed string.
-#
-# Action versions are pinned to commit SHAs verified on 2026-05-23.
 
 name: CI
 on:
