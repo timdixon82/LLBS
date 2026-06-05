@@ -1,4 +1,6 @@
-# Exception ACC-LLBS-001: Brand-blue primary colour contrast shortfall
+# Exception ACC-LLBS-001: Brand-blue primary colour contrast shortfall — CLOSED
+
+**Status: CLOSED** — Closed: 2026-06-05. Closed: --primary changed from #156082 to #145f81 (7.0:1 on white, passes AAA).
 
 ## Summary
 
