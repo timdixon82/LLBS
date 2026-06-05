@@ -215,7 +215,11 @@ section {
   padding: 3rem 2rem;
 }
 
-section:nth-of-type(even):not(.cta-section) {
+/* .vmv-card is excluded so the alternating lighter-bg never overrides the explicit
+   dark backgrounds on the vision and mission cards. Without this, .vmv-card--dark
+   (.vmv-card:nth-of-type(even) inside #vision) was matched and its dark background
+   clobbered with --lighter-bg, making white text and the --p46 label invisible. */
+section:nth-of-type(even):not(.cta-section, .vmv-card) {
   background: var(--lighter-bg);
 }
 
@@ -368,8 +372,11 @@ blockquote footer {
   font-style: normal;
 
   /* #424d60 on --light-bg (#e7eaed) = 7.11:1 (AAA). Override --text-muted which
-     reaches only ~6.7:1 on this background after the root value update. */
+     reaches only ~6.7:1 on this background after the root value update.
+     background: transparent overrides the global footer{background:#02131d} rule
+     which otherwise leaks into blockquote > footer elements. */
   color: #424d60;
+  background: transparent;
   font-size: 0.875rem;
   margin-top: 0.35rem;
 }
