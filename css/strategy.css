@@ -613,9 +613,6 @@ blockquote footer {
   background: #145f81;
 }
 
-.theme-label--t98 {
-  background: var(--t98);
-}
 
 /* ── Timeline ── */
 .timeline-heading {
