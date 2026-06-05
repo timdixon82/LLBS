@@ -3,7 +3,7 @@
   Presentation for the LLBS Living Well Together Strategy page (index.html).
 
   Palette extracted from the strategy PDF:
-    #156082  — primary teal-blue (main brand colour)
+    #145f81  — primary teal-blue (main brand colour)
     #042433  — dark navy
     #0556A8  — bright blue accent (footer rule, highlights)
     #4EA72E  — green (positive/strength)
@@ -48,7 +48,7 @@
 
 /* ── Custom properties ── */
 :root {
-  --primary: #156082;
+  --primary: #145f81;
   --primary-dark: #042433;
   --accent: #0556a8;
   --green: #4ea72e;
@@ -59,7 +59,7 @@
   --text: #1a1a1a;
   --text-muted: #485366;
 
-  /* Timeline tints (P80–P98 of #156082) */
+  /* Timeline tints (P80–P98 of #145f81) */
   --t80: #44809b;
   --t86: #367694;
   --t92: #286d8c;
