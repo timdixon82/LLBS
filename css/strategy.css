@@ -57,7 +57,7 @@
   --lighter-bg: #f3f5f6;
   --white: #fff;
   --text: #1a1a1a;
-  --text-muted: #4a5568;
+  --text-muted: #485366;
 
   /* Timeline tints (P80–P98 of #156082) */
   --t80: #44809b;
@@ -307,7 +307,10 @@ section:nth-of-type(even):not(.cta-section) {
 
 .hero__cta {
   display: inline-block;
-  background: var(--primary);
+
+  /* #145f81 on white = 7.0:1 (AAA). Previous var(--primary) #156082 = 6.94:1.
+     --primary is unchanged (approved exception ACC-LLBS-001 covers #156082 on white). */
+  background: #145f81;
   color: var(--white);
   padding: 0.875rem 2.25rem;
   text-decoration: none;
@@ -363,7 +366,10 @@ blockquote {
 
 blockquote footer {
   font-style: normal;
-  color: var(--text-muted);
+
+  /* #424d60 on --light-bg (#e7eaed) = 7.11:1 (AAA). Override --text-muted which
+     reaches only ~6.7:1 on this background after the root value update. */
+  color: #424d60;
   font-size: 0.875rem;
   margin-top: 0.35rem;
 }
@@ -409,7 +415,8 @@ blockquote footer {
 }
 
 .swot-quadrant--s h3 {
-  color: #2a6a1a;
+  /* #1e5e0e on #ebf5e9 ≥ 7:1 (AAA). Previous #2a6a1a was 5.91:1. */
+  color: #1e5e0e;
 }
 
 .swot-quadrant--w h3 {
@@ -417,7 +424,8 @@ blockquote footer {
 }
 
 .swot-quadrant--o h3 {
-  color: var(--primary);
+  /* #0b5678 on #ebf1fa ≥ 7:1 (AAA). Previous var(--primary) #156082 was 6.11:1. */
+  color: #0b5678;
 }
 
 .swot-quadrant--t h3 {
@@ -469,6 +477,12 @@ blockquote footer {
 
 .vmv-card--dark {
   background: var(--primary-dark);
+}
+
+/* Vision card: darker bg (#00293c) so --p46 label (#93b6c6) reaches 7.16:1 (AAA).
+   Mission card (.vmv-card--dark, bg #042433) is not flagged — leave unchanged. */
+.vmv-card:not(.vmv-card--dark) {
+  background: #00293c;
 }
 
 .vmv-card__label {
@@ -571,20 +585,25 @@ blockquote footer {
   font-size: 0.8125rem;
   font-weight: bold;
   color: var(--white);
-  background: var(--primary);
+
+  /* #145f81 on white = 7.0:1 (AAA). Previous var(--primary) #156082 = 6.94:1. */
+  background: #145f81;
   white-space: nowrap;
 }
 
 .theme-label--t80 {
-  background: var(--t80);
+  /* #235f7a on white = 7.0:1 (AAA). Previous var(--t80) #44809b = 4.39:1. */
+  background: #235f7a;
 }
 
 .theme-label--t86 {
-  background: var(--t86);
+  /* #1f5f7d on white = 7.0:1 (AAA). Previous var(--t86) #367694 = 5.05:1. */
+  background: #1f5f7d;
 }
 
 .theme-label--t92 {
-  background: var(--t92);
+  /* #145f81 on white = 7.0:1 (AAA). Previous var(--t92) #286d8c = 5.8:1. */
+  background: #145f81;
 }
 
 .theme-label--t98 {
@@ -612,7 +631,8 @@ blockquote footer {
 }
 
 .timeline-table th {
-  background: var(--primary);
+  /* #145f81 on white = 7.0:1 (AAA). Previous var(--primary) #156082 = 6.94:1. */
+  background: #145f81;
   color: var(--white);
   padding: 0.625rem 0.75rem;
   text-align: center;
@@ -710,7 +730,9 @@ blockquote footer {
   background: var(--white);
   font-weight: bold;
   border-color: var(--mid-grey);
-  color: var(--primary);
+
+  /* #145f81 on white = 7.0:1 (AAA). Previous var(--primary) #156082 = 6.94:1. */
+  color: #145f81;
   border-bottom: 3px solid var(--accent);
 }
 
@@ -736,7 +758,10 @@ blockquote footer {
   font-size: 0.6875rem;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  color: var(--text-muted);
+
+  /* #424d60 on --light-bg (#e7eaed) = 7.11:1 (AAA). --text-muted (#485366) only
+     reaches ~6.7:1 on this background; a direct override is required. */
+  color: #424d60;
   margin-bottom: 0.2rem;
   font-weight: bold;
 }
@@ -787,11 +812,15 @@ blockquote footer {
   border-top-color: var(--t92);
 }
 
-.route-box h4 {
+.route-box h3 {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  color: var(--primary);
+
+  /* #000e15 on --lighter-bg (#f3f5f6) = 19.2:1 (AAA). Previous var(--primary)
+     #156082 on #f3f5f6 was below 7:1. Selector changed from h4 to h3 to fix
+     G141 heading-level skip inside tab panels (h2 section → h3 in panel). */
+  color: #000e15;
   margin-bottom: 0.625rem;
   font-weight: bold;
 }
@@ -831,11 +860,15 @@ blockquote footer {
 }
 
 .income-card--mid {
-  background: var(--primary);
+  /* #00496b: white label ≥ 7:1 (AAA), +4% number (#93b6c6) targets ≥ 4.5:1 (G18
+     large text). Previous var(--primary) #156082 gave white label 6.94:1. */
+  background: #00496b;
 }
 
 .income-card--teal {
-  background: var(--t86);
+  /* #094967: white label ≥ 7:1 (AAA), ~13% number (#93b6c6) targets ≥ 4.5:1 (G18
+     large text). Previous var(--t86) #367694 gave white label 5.05:1. */
+  background: #094967;
 }
 
 .income-card__number {
