@@ -1,0 +1,9 @@
+# workflows-protect: list workflow files that must not be overwritten by
+# sync-from-template.sh. Add one filename per line (basename only, no path).
+# The sync script skips any file whose basename appears here.
+#
+# LLBS uses UNBUNDLED deployment (no build step, ADR 003) and has project-
+# specific linting scripts. These two workflows are adapted from the template
+# and must not be reset to the generic scaffold on future syncs.
+deploy.yml
+ci.yml

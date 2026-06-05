@@ -46,3 +46,7 @@ pa11y.ci.json
 
 # Session transcripts written by the session hook — local audit trail only.
 .claude/transcripts/
+
+# Session handoff document written at the end of each Claude Code session.
+# Local only — not shared or committed.
+.claude/work/HANDOFF.md
