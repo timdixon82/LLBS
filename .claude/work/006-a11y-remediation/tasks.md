@@ -1,0 +1,24 @@
+# Tasks: 006-a11y-remediation
+
+- [ ] index.html: fix hero CTA link contrast 6.94:1 → darken bg to #145f81 `priority:high` `owner:sean` `tag:a11y` `tag:contrast` `from:todo.md`
+- [ ] index.html: fix section-intro paragraph muted text contrast 6.88:1 → darken #4a5568 to #485366 `priority:high` `owner:sean` `tag:a11y` `tag:contrast` `from:todo.md`
+- [ ] index.html: fix blockquote footer contrast 2.51:1 → change text to #fefeff `priority:high` `owner:sean` `tag:a11y` `tag:contrast` `from:todo.md`
+- [ ] index.html: fix SWOT Strengths heading contrast 5.91:1 → change text to #1e5e0e `priority:high` `owner:sean` `tag:a11y` `tag:contrast` `from:todo.md`
+- [ ] index.html: fix SWOT Opportunities heading contrast 6.11:1 → change text to #0b5678 `priority:high` `owner:sean` `tag:a11y` `tag:contrast` `from:todo.md`
+- [ ] index.html: fix Vision label contrast 3.22:1 → darken bg to #00293c `priority:high` `owner:sean` `tag:a11y` `tag:contrast` `from:todo.md`
+- [ ] index.html: fix Mission card text contrast 1.09:1 → darken bg to #57595a `priority:high` `owner:sean` `tag:a11y` `tag:contrast` `from:todo.md`
+- [ ] index.html: fix Strategy table Community/Wellbeing/Future Ready theme labels 5.03–6.94:1 → bg #145f81 or darker `priority:high` `owner:sean` `tag:a11y` `tag:contrast` `from:todo.md`
+- [ ] index.html: fix Strategy table Transport theme label 4.37:1 → bg #235f7a `priority:high` `owner:sean` `tag:a11y` `tag:contrast` `from:todo.md`
+- [ ] index.html: fix Timeline table headers contrast 6.94:1 → bg #145f81 `priority:high` `owner:sean` `tag:a11y` `tag:contrast` `from:todo.md`
+- [ ] index.html: fix Community panel intended-outcome label contrast 6.23:1 → text #424d60 `priority:high` `owner:sean` `tag:a11y` `tag:contrast` `from:todo.md`
+- [ ] index.html: fix Community panel route-box headings contrast 6.34:1 → text #000e15 `priority:high` `owner:sean` `tag:a11y` `tag:contrast` `from:todo.md`
+- [ ] index.html: fix Income card labels (mid and teal variants) contrast 5.03–6.94:1 → bg #145f81 and #1f5f7d `priority:high` `owner:sean` `tag:a11y` `tag:contrast` `from:todo.md`
+- [ ] index.html: fix active Community tab button contrast 6.94:1 → text #145f81 `priority:high` `owner:sean` `tag:a11y` `tag:contrast` `from:todo.md`
+- [ ] index.html: fix Income card +4% number contrast 3.22:1 on mid-teal → bg #00496b `priority:high` `owner:sean` `tag:a11y` `tag:contrast` `from:todo.md`
+- [ ] index.html: fix Income card ~13% number contrast 2.33:1 on dark-teal → bg #094967 `priority:high` `owner:sean` `tag:a11y` `tag:contrast` `from:todo.md`
+- [ ] index.html: investigate G141 Community panel h4 heading structure — Pa11y false positive on tab-panel or genuine fix needed `priority:medium` `owner:sean` `tag:a11y` `tag:heading-structure` `from:todo.md`
+- [ ] brand.html: fix header paragraph muted text contrast 4.98:1 → darken to #4a5a70 `priority:high` `owner:sean` `tag:a11y` `tag:contrast` `from:todo.md`
+- [ ] brand.html: fix upload-area span text contrast 5.50:1 → darken to #4a5a70 `priority:high` `owner:sean` `tag:a11y` `tag:contrast` `from:todo.md`
+- [ ] brand.html: fix input border non-text contrast 1.49:1 → change #cbd5e1 to #768da5 or darker `priority:high` `owner:sean` `tag:a11y` `tag:non-text-contrast` `from:todo.md`
+- [ ] Remove pa11y.json ignore entries for all fixed items and confirm Pa11y passes clean `priority:high` `owner:sean` `tag:a11y` `from:todo.md`
+- [ ] Retire todo.md at repo root (delete file; content now in tasks.md) `priority:low` `owner:sean` `tag:housekeeping` `from:todo.md`
