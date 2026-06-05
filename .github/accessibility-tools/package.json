@@ -1,10 +1,10 @@
 {
-  "name": "llbs-accessibility-tools",
+  "name": "accessibility-tools",
+  "description": "CI accessibility tools. Kept here so Dependabot can track and propose version bumps. Installed in the accessibility workflow via npm ci.",
   "private": true,
-  "description": "Accessibility testing tools for the LLBS project. Managed here so Dependabot can track and propose version bumps automatically. These are installed by the accessibility workflow; they are not a runtime dependency of the site.",
-  "dependencies": {
+  "devDependencies": {
     "@axe-core/cli": "4.11.3",
     "pa11y": "9.1.1",
-    "wait-on": "8.0.1"
+    "wait-on": "9.0.10"
   }
 }
