@@ -61,10 +61,11 @@ var fontColor    = document.getElementById('fontColor');
 var bgColor      = document.getElementById('bgColor');
 var bgAlpha      = document.getElementById('bgAlpha');
 var bgAlphaValue = document.getElementById('bgAlphaValue');
-var contrastAA     = document.getElementById('contrastAA');
-var contrastAAA    = document.getElementById('contrastAAA');
-var contrastRatioEl= document.getElementById('contrastRatio');
-var contrastDetail = document.getElementById('contrastDetail');
+var contrastAA       = document.getElementById('contrastAA');
+var contrastAAA      = document.getElementById('contrastAAA');
+var contrastRatioEl  = document.getElementById('contrastRatio');
+var contrastDetail   = document.getElementById('contrastDetail');
+var keyboardModeBtn  = document.getElementById('keyboardModeBtn');
 
 // ─────────────────────────────────────────────
 // State
@@ -92,6 +93,10 @@ var textState = {
   customPlaced: false,
   bounds: null  // last drawn bounding box for hit-testing {x,y,w,h}
 };
+
+// Keyboard move target — which element arrow keys nudge when the canvas is focused.
+// Initialise to 'photo' so keyboard users get photo-move immediately on focus.
+var keyboardMoveTarget = 'photo';
 
 // ─────────────────────────────────────────────
 // Logo loading
@@ -602,6 +607,61 @@ canvas.addEventListener('wheel', function (e) {
   zoomSlider.value = next;
   zoomSlider.dispatchEvent(new Event('input'));
 }, { passive: false });
+
+// ─────────────────────────────────────────────
+// Keyboard navigation on canvas (WCAG 2.1.1, closes ACC-LLBS-002)
+// ─────────────────────────────────────────────
+
+// Update the mode-toggle button label to reflect current keyboardMoveTarget.
+function updateKeyboardModeLabel() {
+  if (keyboardMoveTarget === 'photo') {
+    keyboardModeBtn.textContent = 'Canvas arrows: moving photo (switch to text)';
+  } else {
+    keyboardModeBtn.textContent = 'Canvas arrows: moving text (switch to photo)';
+  }
+}
+
+// Toggle arrow-key target between photo and text overlay.
+keyboardModeBtn.addEventListener('click', function () {
+  keyboardMoveTarget = (keyboardMoveTarget === 'photo') ? 'text' : 'photo';
+  updateKeyboardModeLabel();
+});
+
+// Arrow-key nudging when canvas is focused.
+canvas.addEventListener('keydown', function (e) {
+  // Do nothing until a photo has been loaded.
+  if (!userImage) { return; }
+
+  var isArrow = e.key === 'ArrowLeft' || e.key === 'ArrowRight' ||
+                e.key === 'ArrowUp'   || e.key === 'ArrowDown';
+
+  if (isArrow) {
+    // Prevent the page from scrolling while the canvas is focused.
+    e.preventDefault();
+
+    var step = e.shiftKey ? 20 : 5;
+    var dx = 0;
+    var dy = 0;
+    if (e.key === 'ArrowLeft')  { dx = -step; }
+    if (e.key === 'ArrowRight') { dx =  step; }
+    if (e.key === 'ArrowUp')    { dy = -step; }
+    if (e.key === 'ArrowDown')  { dy =  step; }
+
+    if (keyboardMoveTarget === 'text') {
+      // Only nudge text if there is overlay text to move.
+      if (textInput.value.trim()) {
+        textState.x += dx;
+        textState.y += dy;
+        textState.customPlaced = true;
+      }
+    } else {
+      transform.offsetX += dx;
+      transform.offsetY += dy;
+    }
+
+    drawComposite();
+  }
+});
 
 // ─────────────────────────────────────────────
 // Share

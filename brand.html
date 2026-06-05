@@ -61,7 +61,9 @@
         <div class="canvas-wrap">
           <canvas id="canvas"
                   aria-label="Branded Instagram and Facebook square image preview"
+                  aria-describedby="canvas-keyboard-hint"
                   tabindex="0"></canvas>
+          <p id="canvas-keyboard-hint" class="visually-hidden">When focused, arrow keys move the photo or text overlay. Hold Shift for a larger step. Use the mode toggle button to switch between moving the photo and moving the text.</p>
         </div>
 
         <form class="controls" aria-label="Photo brander controls">
@@ -95,6 +97,11 @@
           </div>
 
           <p class="help-text">Tip: drag the photo on the canvas to reposition. Use the mouse wheel or pinch to zoom.</p>
+
+          <div class="control-group">
+            <button class="small-btn" id="keyboardModeBtn" type="button">Canvas arrows: moving photo (switch to text)</button>
+            <p class="help-text">Arrow keys nudge the selected target when the canvas is focused.</p>
+          </div>
 
           <div class="divider" role="separator"></div>
 

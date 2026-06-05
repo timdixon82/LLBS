@@ -157,6 +157,11 @@ canvas:active {
   cursor: grabbing;
 }
 
+canvas:focus-visible {
+  outline: 3px solid #1a56db;
+  outline-offset: 3px;
+}
+
 /* ── Control panel ── */
 .controls {
   background: #fff;
