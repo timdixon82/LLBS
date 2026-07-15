@@ -5,6 +5,15 @@
 // asset. This removes the need for the CORS proxy fallback chain that existed
 // in the original single-file version. A same-origin image does not taint
 // the canvas and needs no crossOrigin attribute or proxy. See ADR 005.
+//
+// The colour/contrast and layout maths that do not touch the DOM live in
+// brand-logic.js, extracted (work 051) so they can be unit tested in
+// isolation. This file imports them rather than redefining them.
+
+import {
+  hexToRgb, hexToRgba, isDark, contrastRatio, blendOver,
+  computeStripHeight, computePhotoArea, computeCoverScale
+} from './brand-logic.js';
 
 // ─────────────────────────────────────────────
 // Config
@@ -117,22 +126,18 @@ function loadImage(src) {
 // Photo area helpers
 // ─────────────────────────────────────────────
 function getStripHeight() {
-  return Math.min(BRAND_MAX_PX,
-         Math.max(BRAND_MIN_PX, Math.round(currentFormat.h * BRAND_HEIGHT_RATIO)));
+  return computeStripHeight(currentFormat.h, BRAND_HEIGHT_RATIO, BRAND_MIN_PX, BRAND_MAX_PX);
 }
 
 function getPhotoArea() {
-  var stripH = getStripHeight();
-  return { x: 0, y: 0, w: currentFormat.w, h: currentFormat.h - stripH, stripH: stripH };
+  return computePhotoArea(currentFormat.w, currentFormat.h, getStripHeight());
 }
 
 function computeFitBaseScale() {
   if (!userImage) { return 1; }
   var area = getPhotoArea();
   // Fit-to-frame: cover the photo area (no empty borders)
-  var sx = area.w / userImage.naturalWidth;
-  var sy = area.h / userImage.naturalHeight;
-  return Math.max(sx, sy);
+  return computeCoverScale(area.w, area.h, userImage.naturalWidth, userImage.naturalHeight);
 }
 
 function recentrePhoto() {
@@ -297,47 +302,8 @@ function drawText(area) {
 // ─────────────────────────────────────────────
 // Colour helpers and WCAG contrast
 // ─────────────────────────────────────────────
-function hexToRgb(hex) {
-  var h = hex.replace('#', '');
-  return [
-    parseInt(h.substring(0, 2), 16),
-    parseInt(h.substring(2, 4), 16),
-    parseInt(h.substring(4, 6), 16)
-  ];
-}
-
-function hexToRgba(hex, alpha) {
-  var rgb = hexToRgb(hex);
-  return 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + alpha + ')';
-}
-
-function isDark(hex) {
-  var rgb = hexToRgb(hex);
-  // Perceived luminance (Rec. 709 weights)
-  return (0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]) < 140;
-}
-
-function relLuminance(rgb) {
-  return [0, 1, 2].reduce(function (sum, i) {
-    var v = rgb[i] / 255;
-    var linearised = v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-    return sum + [0.2126, 0.7152, 0.0722][i] * linearised;
-  }, 0);
-}
-
-function contrastRatio(rgb1, rgb2) {
-  var l1 = relLuminance(rgb1);
-  var l2 = relLuminance(rgb2);
-  var hi = Math.max(l1, l2);
-  var lo = Math.min(l1, l2);
-  return (hi + 0.05) / (lo + 0.05);
-}
-
-function blendOver(fg, alpha, bg) {
-  return [0, 1, 2].map(function (i) {
-    return Math.round(fg[i] * alpha + bg[i] * (1 - alpha));
-  });
-}
+// hexToRgb, hexToRgba, isDark, contrastRatio, and blendOver are imported
+// from brand-logic.js (see the import block at the top of this file).
 
 function updateContrastBadge() {
   var fg       = hexToRgb(fontColor.value);
