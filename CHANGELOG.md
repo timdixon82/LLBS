@@ -5,6 +5,21 @@
 Changes from 2026-05-22 are made by Tim Dixon's agent team. Each entry records the
 work folder reference, the change type, and a summary.
 
+## [1.3.0](https://github.com/timdixon82/LLBS/compare/v1.2.0...v1.3.0) (2026-07-16)
+
+
+### Features
+
+* **brand:** add keyboard navigation for canvas photo and text positioning ([df05348](https://github.com/timdixon82/LLBS/commit/df053484e07632f2846e5afbdc69c8f2817feb3d))
+* **brand:** add T-key shortcut to toggle canvas keyboard move mode ([5127925](https://github.com/timdixon82/LLBS/commit/51279259796d5e640462798f9f238ca120f791ba))
+
+
+### Bug Fixes
+
+* **a11y:** change --primary to [#145](https://github.com/timdixon82/LLBS/issues/145)f81 to pass WCAG 2.2 AAA 7:1 threshold ([4411e12](https://github.com/timdixon82/LLBS/commit/4411e126fdf8c70cd08fbd468b6da11fee39ecbb))
+* add dependabot cooldown block to satisfy semgrep dependabot-missing-cooldown rule ([#36](https://github.com/timdixon82/LLBS/issues/36)) ([3f8717d](https://github.com/timdixon82/LLBS/commit/3f8717d257920007e102d8e043e15f23e3c56bb5))
+* **deploy:** restore LLBS unbundled deploy variant ([e739da4](https://github.com/timdixon82/LLBS/commit/e739da4f496d8013547da122e1f15d58febfbf7a))
+
 ## [1.2.0](https://github.com/timdixon82/LLBS/compare/v1.1.0...v1.2.0) (2026-05-31)
 
 
