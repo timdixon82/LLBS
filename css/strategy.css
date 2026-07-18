@@ -142,7 +142,7 @@ body {
 .nav-toggle {
   display: none;
   background: none;
-  border: 2px solid rgb(0 0 0 / 0.25);
+  border: 2px solid var(--text-muted); /* was rgb(0 0 0 / 0.25); 7.77:1 on white header (non-text 3:1) */
   color: var(--text);
   padding: 0.35rem 0.8rem;
   cursor: pointer;
@@ -305,7 +305,7 @@ section:nth-of-type(even):not(.cta-section, .vmv-card) {
 .hero__subtitle {
   font-size: clamp(1.25rem, 3vw, 1.75rem);
   font-weight: normal;
-  color: var(--p56);
+  color: var(--p46); /* was var(--p56); 7.46:1 on --primary-dark (AAA) */
   margin-bottom: 2rem;
 }
 
@@ -328,6 +328,13 @@ section:nth-of-type(even):not(.cta-section, .vmv-card) {
 .hero__cta:hover,
 .hero__cta:focus {
   background: var(--accent);
+}
+
+/* Site-wide :focus-visible outline (--accent on --primary-dark) is 2.22:1, below
+   the 3:1 non-text minimum. Override to white for elements on this dark background. */
+.hero__cta:focus-visible,
+.cta-contact a:focus-visible {
+  outline-color: var(--white);
 }
 
 /* ── Stats ── */

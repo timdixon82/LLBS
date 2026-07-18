@@ -17,7 +17,7 @@
   position: absolute;
   top: -100%;
   left: 0;
-  background: #1a56db;
+  background: #1547b0; /* was #1a56db; 8.20:1 on white text (AAA) */
   color: #fff;
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
@@ -74,7 +74,7 @@ header p {
 .upload-area {
   width: 100%;
   max-width: 560px;
-  border: 2.5px dashed #a3b8d8;
+  border: 2.5px dashed #768da5; /* was #a3b8d8; 3.43:1 on white (non-text 3:1) */
   border-radius: 16px;
   background: #fff;
   padding: 40px 24px;
@@ -264,17 +264,17 @@ canvas:focus-visible {
 
 .contrast-pill.pass {
   background: #d1fae5;
-  color: #065f46;
+  color: #075a3d; /* was #065f46; 7.30:1 (AAA) */
 }
 
 .contrast-pill.fail {
   background: #fee2e2;
-  color: #991b1b;
+  color: #8f1616; /* was #991b1b; 7.49:1 (AAA) */
 }
 
 .contrast-pill.na {
   background: #e2e8f0;
-  color: #475569;
+  color: #1a2942; /* was #475569; 11.84:1 (AAA) */
 }
 
 .contrast-ratio {
@@ -347,7 +347,7 @@ button.action-btn:active {
 }
 
 .btn-primary {
-  background: #1a56db;
+  background: #1547b0; /* was #1a56db; 8.20:1 white text (AAA) */
   color: #fff;
 }
 
@@ -357,8 +357,8 @@ button.action-btn:active {
 
 .btn-secondary {
   background: #fff;
-  color: #1a56db;
-  border: 2px solid #1a56db;
+  color: #1547b0; /* was #1a56db; 8.20:1 (AAA) */
+  border: 2px solid #1547b0; /* was #1a56db */
 }
 
 .btn-secondary:hover {
@@ -367,8 +367,8 @@ button.action-btn:active {
 
 .btn-danger {
   background: #fff;
-  color: #c0392b;
-  border: 2px solid #c0392b;
+  color: #992819; /* was #c0392b; 7.86:1 on white (AAA) */
+  border: 2px solid #992819; /* was #c0392b */
 }
 
 .btn-danger:hover {
@@ -378,7 +378,7 @@ button.action-btn:active {
 /* ── Status ── */
 #status {
   font-size: 0.88rem;
-  color: #4a5a70;
+  color: #3d4e62; /* was #4a5a70; 7.71:1 on #f0f4f8 (AAA), matches header p */
   min-height: 20px;
   text-align: center;
 }
@@ -386,7 +386,7 @@ button.action-btn:active {
 #download-fallback {
   display: none;
   font-size: 0.85rem;
-  color: #c0392b;
+  color: #992819; /* was #c0392b; 7.11:1 on #f0f4f8 (AAA) */
   text-align: center;
 }
 
