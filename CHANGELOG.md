@@ -5,6 +5,13 @@
 Changes from 2026-05-22 are made by Tim Dixon's agent team. Each entry records the
 work folder reference, the change type, and a summary.
 
+## [1.3.1](https://github.com/timdixon82/LLBS/compare/v1.3.0...v1.3.1) (2026-07-23)
+
+
+### Bug Fixes
+
+* bump brace-expansion, fast-uri, and axios to patch security advisories ([#42](https://github.com/timdixon82/LLBS/issues/42)) ([e8330ca](https://github.com/timdixon82/LLBS/commit/e8330cacba26a3584cab94d11cb0f841ba5535f0))
+
 ## [1.3.0](https://github.com/timdixon82/LLBS/compare/v1.2.0...v1.3.0) (2026-07-16)
 
 
