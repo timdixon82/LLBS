@@ -13,11 +13,11 @@
     "copy-fonts": "mkdir -p assets/fonts && cp node_modules/@fontsource/dm-sans/files/dm-sans-latin-400-normal.woff2 assets/fonts/ && cp node_modules/@fontsource/dm-sans/files/dm-sans-latin-500-normal.woff2 assets/fonts/ && cp node_modules/@fontsource/dm-sans/files/dm-sans-latin-700-normal.woff2 assets/fonts/ && cp node_modules/@fontsource/dm-sans/LICENSE assets/fonts/dm-sans-LICENSE.txt"
   },
   "devDependencies": {
-    "@fontsource/dm-sans": "^5.1.1",
+    "@fontsource/dm-sans": "^5.3.0",
     "eslint": "^10.7.0",
     "globals": "^17.7.0",
     "html-validate": "^11.5.6",
-    "stylelint": "^17.14.0",
+    "stylelint": "^17.14.1",
     "stylelint-config-standard": "^40.0.0",
     "vitest": "^4.1.10"
   }
