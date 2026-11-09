@@ -16,14 +16,44 @@
 #
 #   Pass 1c — root and github template sync (verbatim overwrite):
 #     .editorconfig               — editor configuration (team standard)
-#     .github/workflows/          — CI/CD workflow definitions
-#     .github/accessibility-tools/ — accessibility tooling
-#     .github/lint-tools/package.json and package-lock.json — lint tooling
-#                                 lock files only, and only where the project
-#                                 already has a .github/lint-tools/ folder (the
-#                                 folder is never created; .htmlvalidate.json,
-#                                 .stylelintrc.json and .gitignore are
-#                                 project-owned and never touched)
+#     .gitignore                  — NOT replaced. Required lines (today
+#                                   .claude/transcripts/) are appended if
+#                                   missing; nothing is removed or changed.
+#     .github/workflows/         — CI/CD workflow definitions
+#     .github/scripts/           - scripts the workflows call (today
+#                                  deploy-publish.sh, used by deploy.yml)
+#     .github/deploy-publish.txt - the project's Pages publish list. It is
+#                                  PROJECT-OWNED: created only when absent
+#                                  (a generated default that keeps just the
+#                                  canonical folders the project has), and
+#                                  never overwritten or reported as drift.
+#                                  Not created for the browser-extension and
+#                                  wordpress-theme archetypes, nor for a
+#                                  project that lists deploy.yml in
+#                                  .claude/workflows-protect (it migrates by
+#                                  hand; see docs/patterns/github-pages-deploy.md).
+#     ci-tools/lint-tools/ and ci-tools/accessibility-tools/ —
+#                                 package.json and package-lock.json only.
+#                                 Dot-files and any other file in the tool
+#                                 folders are project-owned and never touched.
+#
+#   The tool folders moved from .github/<tool> to ci-tools/<tool> because
+#   Dependabot refuses npm update pull requests for a root .github folder.
+#   Sync never moves a folder. For each tool, it reads one of four states:
+#     NEW     ci-tools/<tool> exists: package files are synced there.
+#     OLD     .github/<tool> exists: nothing is copied for the tool, and
+#             "NOT MIGRATED" is printed. Run scripts/migrate-ci-tools.sh from
+#             the team repository to move the project.
+#     BOTH    both exist: a defect. Sync stops with a non-zero exit before
+#             it changes anything.
+#     ABSENT  neither exists: lint-tools is never created (a project that
+#             does not use it is left alone); accessibility-tools is created
+#             in ci-tools/, as it always was, because accessibility.yml
+#             needs it.
+#   Workflow gate: lint.yml is copied only when lint-tools is NEW or ABSENT,
+#   and accessibility.yml only when accessibility-tools is NEW or ABSENT.
+#   Otherwise the workflow is skipped, so a project never receives a workflow
+#   that points at ci-tools paths that do not exist there.
 #
 #   Pass 1.5 — agent frontmatter sync:
 #     .claude/agents/*.md   — the YAML frontmatter (between --- delimiters)
@@ -40,7 +70,8 @@
 # What it never touches:
 #   Agent PROJECT OVERLAY sections
 #   docs/  (the project wiki)
-#   CLAUDE.md, .gitignore, VERSION
+#   CLAUDE.md, VERSION
+#   Existing .gitignore lines (only missing required lines are appended)
 #
 # After syncing it:
 #   - Updates .claude/template-version with the master VERSION
@@ -72,6 +103,24 @@ is_team_root() {
   local dir="$1"
   [ -f "$dir/CLAUDE.md" ] || return 1
   grep -qE '^# Claude Agent Team' "$dir/CLAUDE.md"
+}
+
+# Which of the two npm tool folders a project has, and where. Prints NEW, OLD,
+# BOTH or ABSENT. Mirrors ci_tool_state in scripts/lib/ci-tools.sh; keep the
+# two identical. This script is copied into projects, so it cannot source lib/.
+ci_tool_state() {
+  local tool="$1" root="$2" has_new=0 has_old=0
+  [ -d "$root/ci-tools/$tool" ] && has_new=1
+  [ -d "$root/.github/$tool" ] && has_old=1
+  if [ "$has_new" -eq 1 ] && [ "$has_old" -eq 1 ]; then
+    echo BOTH
+  elif [ "$has_new" -eq 1 ]; then
+    echo NEW
+  elif [ "$has_old" -eq 1 ]; then
+    echo OLD
+  else
+    echo ABSENT
+  fi
 }
 
 sha256_of() {
@@ -208,6 +257,16 @@ run_parity_test() {
   fi
 }
 
+# ── Main ───────────────────────────────────────────────────────────────────────
+#
+# Everything from here to the last line runs inside main(). Bash reads a
+# function body completely before it runs, and the final line exits, so this
+# script can safely overwrite its own file on disk (Pass 1b copies the new
+# version of this script over the old one) without bash re-reading a changed
+# file at a stale position. The body is deliberately not re-indented, to keep
+# the diff small.
+main() {
+
 # ── Arguments ──────────────────────────────────────────────────────────────────
 #
 # $1 (required) — path to the master template repository
@@ -259,8 +318,9 @@ SYNC_MANIFEST=(
 # scripts/ folder. These are standalone tools called directly by agents;
 # syncing them ensures projects always run the latest version.
 # sync-from-template.sh itself is included so the project's standalone copy
-# stays current (note: updating the file on disk does not affect the running
-# instance — bash loads the script once at start).
+# stays current. Bash reads a script file as it runs, so overwriting the file
+# on disk can crash a running instance; that is why the whole body runs inside
+# main(), which bash reads in full before any line of it executes.
 
 SCRIPTS_MANIFEST=(
   "scripts/next-q.sh"
@@ -269,9 +329,30 @@ SCRIPTS_MANIFEST=(
   "scripts/tasks.sh"
 )
 
+# The npm tool folders (see the Pass 1c notes at the top of this file).
+CI_TOOLS=("lint-tools" "accessibility-tools")
+
+# While projects are being migrated from .github/<tool> to ci-tools/<tool>,
+# a project still in the OLD state only gets a warning, so other content can
+# still be synced into it. When the last project has migrated, change this to
+# true in the same change that retires scripts/migrate-ci-tools.sh. Then a
+# project in the OLD state makes sync exit non-zero, as BOTH always does.
+OLD_STATE_IS_FAILURE=false
+
 changed=0
+old_state_count=0
 echo "sync-from-template.sh: syncing $project_root from $template"
 echo ""
+
+# Pre-flight: refuse to sync a project that has a tool folder at both paths.
+# This is a defect that sync must not paper over, so stop before any change.
+for _tool in "${CI_TOOLS[@]}"; do
+  if [ "$(ci_tool_state "$_tool" "$project_root")" = "BOTH" ]; then
+    echo "ERROR: $_tool exists at both .github/$_tool and ci-tools/$_tool." >&2
+    echo "       Remove one copy by hand, then run the sync again. Nothing was changed." >&2
+    exit 1
+  fi
+done
 
 # ── Pass 1: wholesale overwrite ───────────────────────────────────────────────
 
@@ -346,7 +427,7 @@ ROOT_MANIFEST=(
 
 GITHUB_TEMPLATES_MANIFEST=(
   "workflows"
-  "accessibility-tools"
+  "scripts"
 )
 
 # Determine project type and whether workflows apply.
@@ -370,6 +451,33 @@ for item in "${ROOT_MANIFEST[@]}"; do
 
   cp "$src" "$dst"
   echo "  synced:    $item"
+  changed=$((changed + 1))
+done
+
+# .gitignore is project-owned, so it is never replaced. Each line listed here
+# is appended only if the project's .gitignore does not already hold it
+# (an exact whole-line match). Nothing is removed or reordered, and a missing
+# .gitignore is created with just these lines.
+GITIGNORE_REQUIRED=(
+  ".claude/transcripts/"
+)
+
+_gi="$project_root/.gitignore"
+for _line in "${GITIGNORE_REQUIRED[@]}"; do
+  # A trailing carriage return (Windows line endings) is ignored when matching.
+  # grep -c reads all input, so there is no early-exit pipe failure under pipefail.
+  if [ -f "$_gi" ] && [ "$(tr -d '\r' < "$_gi" | grep -cxF "$_line" || true)" -gt 0 ]; then
+    echo "  unchanged: .gitignore ($_line already listed)"
+    continue
+  fi
+  # Start on a fresh line if the file does not end with a newline, then leave
+  # one blank line before the new comment.
+  if [ -s "$_gi" ]; then
+    [ -z "$(tail -c 1 "$_gi")" ] || printf '\n' >> "$_gi"
+    printf '\n' >> "$_gi"
+  fi
+  printf '# Local audit trail written by a team hook, not for the repository\n%s\n' "$_line" >> "$_gi"
+  echo "  added:     .gitignore ($_line)"
   changed=$((changed + 1))
 done
 
@@ -412,6 +520,25 @@ if type_gets_workflows "$_project_type"; then
         continue
       fi
 
+      # Workflow gate: lint.yml and accessibility.yml name the ci-tools
+      # paths. Copy each only when its tool folder is NEW or ABSENT, never
+      # while the folder is still at the old .github path.
+      _gate_tool=""
+      if [ "$item" = "workflows" ]; then
+        case "$fname" in
+          lint.yml)          _gate_tool="lint-tools" ;;
+          accessibility.yml) _gate_tool="accessibility-tools" ;;
+        esac
+      fi
+      if [ -n "$_gate_tool" ]; then
+        case "$(ci_tool_state "$_gate_tool" "$project_root")" in
+          OLD|BOTH)
+            echo "  SKIPPED:   .github/$item/$fname would reference ci-tools paths that do not exist here"
+            continue
+            ;;
+        esac
+      fi
+
       if [ -f "$dst_file" ] && cmp -s "$src_file" "$dst_file"; then
         echo "  unchanged: .github/$item/$fname"
         continue
@@ -423,17 +550,65 @@ if type_gets_workflows "$_project_type"; then
     done
   done
 
-  # Lint-tools: copy only the two dependency files, and only into projects
-  # that already have a .github/lint-tools folder. Never create the folder.
-  # Honours the same protect list as the other github templates.
-  lt_src="$template/templates/.github/lint-tools"
-  lt_dst="$project_root/.github/lint-tools"
-  if [ ! -d "$lt_dst" ]; then
-    echo "  skipped:   .github/lint-tools/ (project has no lint-tools folder)"
+  # Pages publish list: project-owned. Created only when absent, never
+  # overwritten, so it is deliberately NOT in GITHUB_TEMPLATES_MANIFEST (that
+  # loop overwrites). The generated default keeps only the canonical folders
+  # the project has; the deploy workflow fails closed if the list is wrong.
+  _pub_src="$template/templates/.github/deploy-publish.txt"
+  _pub_script="$template/templates/.github/scripts/deploy-publish.sh"
+  _pub_dst="$project_root/.github/deploy-publish.txt"
+  _pub_archetype=""
+  if [ -f "$project_root/.github/ci-archetype" ]; then
+    _pub_archetype="$(tr -d '[:space:]' < "$project_root/.github/ci-archetype")"
+  fi
+  if [ -e "$_pub_dst" ]; then
+    echo "  kept:      .github/deploy-publish.txt (project publish list)"
+  elif [ "$_pub_archetype" = "browser-extension" ] || [ "$_pub_archetype" = "wordpress-theme" ]; then
+    echo "  skipped:   .github/deploy-publish.txt (archetype '$_pub_archetype' has no Pages site)"
+  elif [ -n "$_protect_list" ] && printf '%s\n' "$_protect_list" | grep -qxF "deploy.yml" 2>/dev/null; then
+    echo "  skipped:   .github/deploy-publish.txt (deploy.yml is protected; migrate by hand, see docs/patterns/github-pages-deploy.md)"
+  elif [ ! -f "$_pub_src" ] || [ ! -f "$_pub_script" ]; then
+    echo "  WARNING: publish list template or script not found in master templates; skipping"
   else
+    if DEPLOY_PUBLISH_ROOT="$project_root" bash "$_pub_script" default "$_pub_src" > "$_pub_dst.tmp"; then
+      mv "$_pub_dst.tmp" "$_pub_dst"
+      echo "  created:   .github/deploy-publish.txt (generated default, review before merging)"
+      changed=$((changed + 1))
+    else
+      rm -f "$_pub_dst.tmp"
+      echo "  WARNING: could not generate .github/deploy-publish.txt; create it by hand"
+    fi
+  fi
+
+  # npm tool folders: copy only the two dependency files, into ci-tools/<tool>,
+  # according to each tool's state. Sync never moves a folder. Honours the same
+  # protect list as the workflows.
+  for _tool in "${CI_TOOLS[@]}"; do
+    tool_src="$template/templates/ci-tools/$_tool"
+    tool_dst="$project_root/ci-tools/$_tool"
+    _state="$(ci_tool_state "$_tool" "$project_root")"
+
+    case "$_state" in
+      OLD)
+        echo "  NOT MIGRATED: $_tool is at .github/$_tool; run scripts/migrate-ci-tools.sh from the team repository"
+        old_state_count=$((old_state_count + 1))
+        continue
+        ;;
+      ABSENT)
+        if [ "$_tool" = "accessibility-tools" ]; then
+          # accessibility.yml needs this folder, so it is created, as it
+          # always has been. Lint-tools is never created.
+          mkdir -p "$tool_dst"
+        else
+          echo "  skipped:   ci-tools/$_tool/ (project has no $_tool folder)"
+          continue
+        fi
+        ;;
+    esac
+
     for fname in package.json package-lock.json; do
-      src_file="$lt_src/$fname"
-      dst_file="$lt_dst/$fname"
+      src_file="$tool_src/$fname"
+      dst_file="$tool_dst/$fname"
 
       if [ ! -f "$src_file" ]; then
         echo "  WARNING: $src_file not found in master templates; skipping"
@@ -441,24 +616,23 @@ if type_gets_workflows "$_project_type"; then
       fi
 
       if [ -n "$_protect_list" ] && printf '%s\n' "$_protect_list" | grep -qxF "$fname" 2>/dev/null; then
-        echo "  protected: .github/lint-tools/$fname"
+        echo "  protected: ci-tools/$_tool/$fname"
         continue
       fi
 
       if [ -f "$dst_file" ] && cmp -s "$src_file" "$dst_file"; then
-        echo "  unchanged: .github/lint-tools/$fname"
+        echo "  unchanged: ci-tools/$_tool/$fname"
         continue
       fi
 
       cp "$src_file" "$dst_file"
-      echo "  synced:    .github/lint-tools/$fname"
+      echo "  synced:    ci-tools/$_tool/$fname"
       changed=$((changed + 1))
     done
-  fi
+  done
 else
   echo "  skipped:   .github/workflows/ (project type '$_project_type' does not use build workflows)"
-  echo "  skipped:   .github/accessibility-tools/ (same reason)"
-  echo "  skipped:   .github/lint-tools/ (same reason)"
+  echo "  skipped:   ci-tools/ (same reason)"
 fi
 
 # ── Pass 1.5: agent frontmatter sync ─────────────────────────────────────────
@@ -667,9 +841,19 @@ if run_parity_test "$project_root" "$template"; then
   echo ""
   echo "Review the changes, then open a pull request."
   echo "Opening a pull request is a gated action — pause for Tim's approval."
+  if [ "$old_state_count" -gt 0 ]; then
+    echo ""
+    echo "NOT MIGRATED: $old_state_count tool folder(s) are still under .github/." >&2
+    if [ "$OLD_STATE_IS_FAILURE" = true ]; then
+      exit 1
+    fi
+  fi
 else
   echo "" >&2
   echo "ERROR: parity self-test failed after sync." >&2
   echo "       Resolve the FAIL items above before opening a pull request." >&2
   exit 1
 fi
+}
+
+main "$@"; exit $?
