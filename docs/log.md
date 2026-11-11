@@ -40,3 +40,7 @@ Pages created in this wiki establishment:
 - `docs/exceptions/ACC-LLBS-001-brand-blue-contrast.md`
 - `docs/exceptions/ACC-LLBS-002-canvas-keyboard-gap.md`
 - `docs/exceptions/SEC-LLBS-001-security-headers.md`
+
+## [2026-11-11] ingest | CI tool folders moved to ci-tools
+
+The lint-tools and accessibility-tools folders moved from .github to ci-tools (Decision 021 in the team repository), because Dependabot cannot raise npm update pull requests for a folder under the root .github folder. The Dependabot entries and the lint and accessibility workflows now use the ci-tools paths. The package files moved unchanged.
