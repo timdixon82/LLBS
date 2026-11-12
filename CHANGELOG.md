@@ -5,6 +5,13 @@
 Changes from 2026-05-22 are made by Tim Dixon's agent team. Each entry records the
 work folder reference, the change type, and a summary.
 
+## [1.3.2](https://github.com/timdixon82/LLBS/compare/v1.3.1...v1.3.2) (2026-11-12)
+
+
+### Bug Fixes
+
+* **deps:** clear Dependabot alerts in dev dependencies ([#75](https://github.com/timdixon82/LLBS/issues/75)) ([cd6d558](https://github.com/timdixon82/LLBS/commit/cd6d55848a90e0982739a77293532b9f43496d11))
+
 ## [1.3.1](https://github.com/timdixon82/LLBS/compare/v1.3.0...v1.3.1) (2026-07-23)
 
 
