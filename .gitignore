@@ -50,3 +50,15 @@ pa11y.ci.json
 # Session handoff document written at the end of each Claude Code session.
 # Local only — not shared or committed.
 .claude/work/HANDOFF.md
+
+# Local audit trail written by a team hook, not for the repository
+.claude/work/*/events.jsonl
+
+# Local audit trail written by a team hook, not for the repository
+.claude/work/*/github-actions-log.md
+
+# Local audit trail written by a team hook, not for the repository
+/lint.md
+
+# Local audit trail written by a team hook, not for the repository
+.claude/.status-rebuild.lock
