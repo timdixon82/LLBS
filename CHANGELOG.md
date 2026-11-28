@@ -5,6 +5,15 @@
 Changes from 2026-05-22 are made by Tim Dixon's agent team. Each entry records the
 work folder reference, the change type, and a summary.
 
+## [1.3.2](https://github.com/timdixon82/LLBS/compare/v1.3.1...v1.3.2) (2026-11-28)
+
+
+### Bug Fixes
+
+* **deps:** clear Dependabot alerts in dev dependencies ([#75](https://github.com/timdixon82/LLBS/issues/75)) ([cd6d558](https://github.com/timdixon82/LLBS/commit/cd6d55848a90e0982739a77293532b9f43496d11))
+* **html:** use role=none instead of role=presentation ([766888d](https://github.com/timdixon82/LLBS/commit/766888dd5d6270fdbae01f27b999694771e99dd0))
+* **html:** use role=none instead of role=presentation ([6a8b2d1](https://github.com/timdixon82/LLBS/commit/6a8b2d1fe4050ddb455ab1cfd7c6d2ed98915fbc))
+
 ## [1.3.1](https://github.com/timdixon82/LLBS/compare/v1.3.0...v1.3.1) (2026-07-23)
 
 
